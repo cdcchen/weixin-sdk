@@ -1,0 +1,38 @@
+{
+  "name": "cdcchen/weixin",
+  "description": "weixin development sdk",
+  "version": "1.0.0",
+  "keywords": ["weixin", "wechat", "sdk"],
+  "homepage": "https://github.com/cdcchen/weixin-sdk",
+  "time": "2016-03-09 16:45:01",
+  "license": "private",
+  "support": {
+    "issues": "https://github.com/cdcchen/weixin-sdk/issues",
+    "wiki": "https://github.com/cdcchen/weixin-sdk/wiki",
+    "source": "https://github.com/cdcchen/weixin-sdk"
+  },
+  "authors": [
+    {
+      "name": "Dong Chen",
+      "email": "cdcchen@gmail.com"
+    }
+  ],
+  "minimum-stability": "stable",
+  "require": {
+    "php": ">=5.4.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "weixin\\": "src/"
+    }
+  },
+  "extra": {
+    "asset-installer-paths": {
+      "npm-asset-library": "vendor/npm",
+      "bower-asset-library": "vendor/bower"
+    },
+    "branch-alias": {
+      "dev-master": "1.0.x-dev"
+    }
+  }
+}
