@@ -9,7 +9,7 @@
 namespace weixin\qy\push\models;
 
 
-class Video extends Model
+class Video extends Message
 {
     public $mediaID;
     public $thumbMediaID;

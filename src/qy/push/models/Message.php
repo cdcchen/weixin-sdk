@@ -9,7 +9,7 @@
 namespace weixin\qy\push\models;
 
 
-class Model extends ModelBase
+class Message extends Base
 {
     const TYPE_TEXT = 'text';
     const TYPE_IMAGE = 'image';

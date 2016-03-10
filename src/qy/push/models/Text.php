@@ -9,7 +9,7 @@
 namespace weixin\qy\push\models;
 
 
-class Text extends Model
+class Text extends Message
 {
     public $content;
 

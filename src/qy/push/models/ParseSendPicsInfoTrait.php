@@ -16,6 +16,7 @@ trait ParseSendPicsInfoTrait
      */
     private function parsePicInfo()
     {
+        /* @var \SimpleXMLElement $list */
         $list = $this->_xml->SendPicsInfo->PicList;
 
         $pics = [];

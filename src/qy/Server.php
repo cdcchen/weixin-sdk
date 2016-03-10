@@ -13,23 +13,19 @@ use phpplus\net\CUrl;
 
 class Server extends Base
 {
-    const URL_IP_LIST = '/cgi-bin/getcallbackip';
+    const API_IP_LIST = '/cgi-bin/getcallbackip';
 
-    public function ipList()
+    public function getCallbackIP()
     {
-        $url = $this->getUrl(self::URL_IP_LIST);
+        $url = $this->getUrl(self::API_IP_LIST);
 
         $request = new CUrl();
         $request->get($url);
 
-        if ($request->getErrno() === CURLE_OK) {
-            $response = $request->getJsonData();
-            if (isset($response['ip_list']))
+        return static::handleRequest($request, function(CUrl $request){
+            return static::handleResponse($request, function($response){
                 return $response['ip_list'];
-            else
-                throw new \ErrorException($response['errmsg'], $response['errcode']);
-        }
-        else
-            throw new \ErrorException($request->getError(), $request->getHttpCode());
+            });
+        });
     }
 }

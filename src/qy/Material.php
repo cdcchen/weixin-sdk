@@ -15,13 +15,13 @@ class Material extends Base
 {
     const BATCH_GET_MAX_COUNT = 50;
 
-    const URL_UPLOAD = '/cgi-bin/material/add_material';
-    const URL_DOWNLOAD = '/cgi-bin/material/get';
-    const URL_ADD_NEWS = '/cgi-bin/material/add_mpnews';
-    const URL_UPDATE_NEWS = '/cgi-bin/material/update_material';
-    const URL_GET_COUNT = '/cgi-bin/material/get_count';
-    const URL_LIST = '/cgi-bin/material/batchget';
-    const URL_DELETE = '/cgi-bin/material/del';
+    const API_UPLOAD = '/cgi-bin/material/add_material';
+    const API_DOWNLOAD = '/cgi-bin/material/get';
+    const API_ADD_NEWS = '/cgi-bin/material/add_mpnews';
+    const API_UPDATE_NEWS = '/cgi-bin/material/update_MPNEWS';
+    const API_GET_COUNT = '/cgi-bin/material/get_count';
+    const API_LIST = '/cgi-bin/material/batchget';
+    const API_DELETE = '/cgi-bin/material/del';
 
     const TYPE_IMAGE = 'image';
     const TYPE_VOICE = 'voice';
@@ -37,7 +37,7 @@ class Material extends Base
 
     public function uploadFile($filename, $type)
     {
-        $url = $this->getUrl(self::URL_UPLOAD, ['type' => $type]);
+        $url = $this->getUrl(self::API_UPLOAD, ['type' => $type]);
         $media = static::makeMediaParams($filename);
 
         $request = new CUrl();
@@ -67,7 +67,7 @@ class Material extends Base
 
     public function downloadFile($media_id, $agent_id)
     {
-        $url = $this->getUrl(self::URL_DOWNLOAD);
+        $url = $this->getUrl(self::API_DOWNLOAD);
 
         $request = new CUrl();
         $request->returnHeaders(true)->get($url, ['media_id' => $media_id, 'agentid' => $agent_id]);
@@ -89,18 +89,14 @@ class Material extends Base
             throw new \ErrorException($request->getError(), $request->getHttpCode());
     }
 
-    public function updateNews($agent_id, $news, $media_id = null)
+    public function addNews($agent_id, $news)
     {
-        $api = $media_id ? self::URL_UPDATE_NEWS : self::URL_ADD_NEWS;
-        $url = $this->getUrl($api, $this->getAccessToken());
+        $url = $this->getUrl(self::API_ADD_NEWS, $this->getAccessToken());
 
         $attributes = [
             'agentid' => $agent_id,
             'mpnews' => $news,
         ];
-
-        if ($media_id)
-            $attributes['media_id'] = $media_id;
 
         $request = new CUrl();
         $request->post($url, json_encode($attributes, 320));
@@ -108,7 +104,32 @@ class Material extends Base
         if ($request->getErrno() === CURLE_OK) {
             $response = $request->getJsonData();
             if ($response['errcode'] == 0) {
-                return $media_id ? true : $response['media_id'];
+                return $response['media_id'];
+            }
+            else
+                throw new \ErrorException($response['errmsg'], $response['errcode']);
+        }
+        else
+            throw new \ErrorException($request->getError(), $request->getHttpCode());
+    }
+
+    public function updateNews($agent_id, $news, $media_id)
+    {
+        $url = $this->getUrl(self::API_UPDATE_NEWS, $this->getAccessToken());
+
+        $attributes = [
+            'agentid' => $agent_id,
+            'media_id' => $media_id,
+            'mpnews' => $news,
+        ];
+
+        $request = new CUrl();
+        $request->post($url, json_encode($attributes, 320));
+
+        if ($request->getErrno() === CURLE_OK) {
+            $response = $request->getJsonData();
+            if ($response['errcode'] == 0) {
+                return true;
             }
             else
                 throw new \ErrorException($response['errmsg'], $response['errcode']);
@@ -119,7 +140,7 @@ class Material extends Base
 
     public function newsInfo($media_id, $agent_id)
     {
-        $url = $this->getUrl(self::URL_DOWNLOAD);
+        $url = $this->getUrl(self::API_DOWNLOAD);
 
         $request = new CUrl();
         $request->returnHeaders(true)->get($url, ['media_id' => $media_id, 'agentid' => $agent_id]);
@@ -142,19 +163,19 @@ class Material extends Base
 
     public function count($agent_id)
     {
-        $url = $this->getUrl(self::URL_GET_COUNT);
+        $url = $this->getUrl(self::API_GET_COUNT);
 
         $request = new CUrl();
         $request->get($url, ['agentid' => $agent_id]);
 
         if ($request->getErrno() === CURLE_OK) {
-                $response = $request->getJsonData();
-                if ($response['errcode'] == 0) {
-                    unset($response['errcode'], $response['errmsg']);
-                    return $response;
-                }
-                else
-                    throw new \ErrorException($response['errmsg'], $response['errcode']);
+            $response = $request->getJsonData();
+            if ($response['errcode'] == 0) {
+                unset($response['errcode'], $response['errmsg']);
+                return $response;
+            }
+            else
+                throw new \ErrorException($response['errmsg'], $response['errcode']);
         }
         else
             throw new \ErrorException($request->getError(), $request->getHttpCode());
@@ -170,7 +191,7 @@ class Material extends Base
      */
     public function query($agent_id, $type, $count, $offset = 0)
     {
-        $url = $this->getUrl(self::URL_LIST);
+        $url = $this->getUrl(self::API_LIST);
 
         $attributes = [
             'agentid' => $agent_id,
@@ -183,13 +204,13 @@ class Material extends Base
         $request->post($url, json_encode($attributes, 320));
 
         if ($request->getErrno() === CURLE_OK) {
-                $response = $request->getJsonData();
-                if ($response['errcode'] == 0) {
-                    unset($response['errcode'], $response['errmsg']);
-                    return $response;
-                }
-                else
-                    throw new \ErrorException($response['errmsg'], $response['errcode']);
+            $response = $request->getJsonData();
+            if ($response['errcode'] == 0) {
+                unset($response['errcode'], $response['errmsg']);
+                return $response;
+            }
+            else
+                throw new \ErrorException($response['errmsg'], $response['errcode']);
         }
         else
             throw new \ErrorException($request->getError(), $request->getHttpCode());
@@ -198,7 +219,7 @@ class Material extends Base
 
     public function delete($agent_id, $media_id)
     {
-        $url = $this->getUrl(self::URL_DELETE);
+        $url = $this->getUrl(self::API_DELETE);
 
         $attributes = [
             'agentid' => $agent_id,

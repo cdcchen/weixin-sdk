@@ -10,11 +10,14 @@ namespace weixin\qy;
 
 
 use phpplus\net\CUrl;
+use weixin\qy\base\RequestException;
+use weixin\qy\base\ResponseException;
 
 class Media extends Base
 {
-    const URL_UPLOAD = '/cgi-bin/media/upload';
-    const URL_DOWNLOAD = '/cgi-bin/media/get';
+    const API_UPLOAD = '/cgi-bin/media/upload';
+    const API_UPLOAD_IMG = '/cgi-bin/media/uploadimg';
+    const API_DOWNLOAD = '/cgi-bin/media/get';
 
     const TYPE_IMAGE = 'image';
     const TYPE_VOICE = 'voice';
@@ -29,7 +32,7 @@ class Media extends Base
 
     public function upload($filename, $type)
     {
-        $url = $this->getUrl(self::URL_UPLOAD, ['type' => $type]);
+        $url = $this->getUrl(self::API_UPLOAD, ['type' => $type]);
         $media = $this->makeMediaParams($filename);
 
         $request = new CUrl();
@@ -40,10 +43,29 @@ class Media extends Base
             if ($response['errcode'] == 0)
                 return $response['media_id'];
             else
-                throw new \ErrorException($response['errmsg'], $response['errcode']);
+                throw new ResponseException($response['errmsg'], $response['errcode']);
         }
         else
-            throw new \ErrorException($request->getError(), $request->getHttpCode());
+            throw new RequestException($request->getError(), $request->getHttpCode());
+    }
+
+    public function uploadImage($filename)
+    {
+        $url = $this->getUrl(self::API_UPLOAD_IMG);
+        $media = $this->makeMediaParams($filename);
+
+        $request = new CUrl();
+        $request->post($url, $media, true);
+
+        if ($request->getErrno() === CURLE_OK) {
+            $response = $request->getJsonData();
+            if ($response['errcode'] == 0)
+                return $response['url'];
+            else
+                throw new ResponseException($response['errmsg'], $response['errcode']);
+        }
+        else
+            throw new RequestException($request->getError(), $request->getHttpCode());
     }
 
     public function makeMediaParams($filename)
@@ -59,7 +81,7 @@ class Media extends Base
 
     public function download($media_id)
     {
-        $url = $this->getUrl(self::URL_DOWNLOAD);
+        $url = $this->getUrl(self::API_DOWNLOAD);
 
         $request = new CUrl();
         $request->returnHeaders(true)->get($url, ['media_id' => $media_id]);
@@ -68,12 +90,12 @@ class Media extends Base
             $contentType = $request->getResponseHeaders('content-type');
             if (stripos($contentType, 'json') !== false) {
                 $response = $request->getJsonData();
-                throw new \ErrorException($response['errmsg'], $response['errcode']);
+                throw new ResponseException($response['errmsg'], $response['errcode']);
             }
             else
                 return $request->getBody();
         }
         else
-            throw new \ErrorException($request->getError(), $request->getHttpCode());
+            throw new RequestException($request->getError(), $request->getHttpCode());
     }
 }

@@ -9,7 +9,7 @@
 namespace weixin\qy\push\models;
 
 
-class Event extends ModelBase
+class Event extends Message
 {
     const EVENT_SUBSCRIBE = 'subscribe';
     const EVENT_UNSUBSCRIBE = 'unsubscribe';

@@ -9,7 +9,7 @@
 namespace weixin\qy\push\models;
 
 
-class Location extends Model
+class Location extends Message
 {
     public $locationX;
     public $locationY;

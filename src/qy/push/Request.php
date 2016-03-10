@@ -10,35 +10,33 @@ namespace weixin\qy\push;
 
 
 use weixin\qy\push\models\Event;
-use weixin\qy\push\models\Model;
+use weixin\qy\push\models\Message;
 use weixin\qy\security\PrpCrypt;
 
 class Request
 {
     static protected $modelMap = [
-        Model::TYPE_TEXT => 'weixin\qy\push\models\Text',
-        Model::TYPE_IMAGE => 'weixin\qy\push\models\Image',
-        Model::TYPE_VOICE => 'weixin\qy\push\models\Voice',
-        Model::TYPE_VIDEO => 'weixin\qy\push\models\Video',
-        Model::TYPE_SHORT_VIDEO => 'weixin\qy\push\models\ShortVideo',
-        Model::TYPE_LOCATION => 'weixin\qy\push\models\Location',
+        Message::TYPE_TEXT => 'weixin\qy\push\models\Text',
+        Message::TYPE_IMAGE => 'weixin\qy\push\models\Image',
+        Message::TYPE_VOICE => 'weixin\qy\push\models\Voice',
+        Message::TYPE_VIDEO => 'weixin\qy\push\models\Video',
+        Message::TYPE_SHORT_VIDEO => 'weixin\qy\push\models\ShortVideo',
+        Message::TYPE_LOCATION => 'weixin\qy\push\models\Location',
 
-        Model::TYPE_EVENT . Event::EVENT_SUBSCRIBE => 'weixin\qy\push\models\Event',
-        Model::TYPE_EVENT . Event::EVENT_UNSUBSCRIBE => 'weixin\qy\push\models\Event',
-        Model::TYPE_EVENT . Event::EVENT_LOCATION => 'weixin\qy\push\models\LocationEvent',
-        Model::TYPE_EVENT . Event::EVENT_CLICK => 'weixin\qy\push\models\ClickEvent',
-        Model::TYPE_EVENT . Event::EVENT_VIEW => 'weixin\qy\push\models\ViewEvent',
-        Model::TYPE_EVENT . Event::EVENT_SCANCODE_PUSH => 'weixin\qy\push\models\ScanCodePushEvent',
-        Model::TYPE_EVENT . Event::EVENT_SCANCODE_WAITMSG => 'weixin\qy\push\models\ScanCodeWaitMsgEvent',
-        Model::TYPE_EVENT . Event::EVENT_PIC_SYSPHOTO => 'weixin\qy\push\models\PicPhotoEvent',
-        Model::TYPE_EVENT . Event::EVENT_PIC_PHOTO_OR_ALBUM => 'weixin\qy\push\models\PicPhotoAlbumEvent',
-        Model::TYPE_EVENT . Event::EVENT_PIC_WEIXIN_PHOTO => 'weixin\qy\push\models\PicWeixinPhotoEvent',
-        Model::TYPE_EVENT . Event::EVENT_LOCATION_SELECT => 'weixin\qy\push\models\LocationSelectEvent',
-        Model::TYPE_EVENT . Event::EVENT_ENTER_AGENT => 'weixin\qy\push\models\EnterAgentEvent',
-        Model::TYPE_EVENT . Event::EVENT_BATCH_JOB_RESULT => 'weixin\qy\push\models\BatchJobEvent',
+        Message::TYPE_EVENT . Event::EVENT_SUBSCRIBE => 'weixin\qy\push\models\Event',
+        Message::TYPE_EVENT . Event::EVENT_UNSUBSCRIBE => 'weixin\qy\push\models\Event',
+        Message::TYPE_EVENT . Event::EVENT_LOCATION => 'weixin\qy\push\models\LocationEvent',
+        Message::TYPE_EVENT . Event::EVENT_CLICK => 'weixin\qy\push\models\ClickEvent',
+        Message::TYPE_EVENT . Event::EVENT_VIEW => 'weixin\qy\push\models\ViewEvent',
+        Message::TYPE_EVENT . Event::EVENT_SCANCODE_PUSH => 'weixin\qy\push\models\ScanCodePushEvent',
+        Message::TYPE_EVENT . Event::EVENT_SCANCODE_WAITMSG => 'weixin\qy\push\models\ScanCodeWaitMsgEvent',
+        Message::TYPE_EVENT . Event::EVENT_PIC_SYSPHOTO => 'weixin\qy\push\models\PicPhotoEvent',
+        Message::TYPE_EVENT . Event::EVENT_PIC_PHOTO_OR_ALBUM => 'weixin\qy\push\models\PicPhotoAlbumEvent',
+        Message::TYPE_EVENT . Event::EVENT_PIC_WEIXIN_PHOTO => 'weixin\qy\push\models\PicWeixinPhotoEvent',
+        Message::TYPE_EVENT . Event::EVENT_LOCATION_SELECT => 'weixin\qy\push\models\LocationSelectEvent',
+        Message::TYPE_EVENT . Event::EVENT_ENTER_AGENT => 'weixin\qy\push\models\EnterAgentEvent',
+        Message::TYPE_EVENT . Event::EVENT_BATCH_JOB_RESULT => 'weixin\qy\push\models\BatchJobEvent',
     ];
-
-    public $debug = false;
 
     private $_token;
     private $_encodingAesKey;
@@ -51,14 +49,11 @@ class Request
         $this->_corpID = $corp_id;
     }
 
-    public function buildModel($body)
+    public function buildMessage($body)
     {
         $decrypt = $this->decrypt($body);
 
-        if ($this->debug) {
-            static::traceLog('push_decrypt.log', $decrypt);
-        }
-        return static::createModel($decrypt);
+        return static::createMessage($decrypt);
     }
 
     protected function decrypt($body)
@@ -69,7 +64,7 @@ class Request
         return $crypt->decrypt((string)$xml->Encrypt, $this->_corpID);
     }
 
-    protected static function createModel($decrypt)
+    protected static function createMessage($decrypt)
     {
         $xml = simplexml_load_string($decrypt, 'SimpleXMLElement', LIBXML_NOCDATA);
 
@@ -84,17 +79,5 @@ class Request
         }
         else
             throw new \ErrorException('Unsupported msg type or event type.');
-    }
-
-    private static function traceLog($filename, $text)
-    {
-        $log = app()->runtimePath . '/' . $filename;
-        $handle = fopen($log, 'a');
-        if (flock($handle, LOCK_EX | LOCK_NB)) {
-            fwrite($handle, $text . "\n\n");
-            fflush($handle);
-            flock($handle, LOCK_UN);
-            fclose($handle);
-        }
     }
 }

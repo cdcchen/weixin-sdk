@@ -10,11 +10,13 @@ namespace weixin\qy;
 
 
 use phpplus\net\CUrl;
+use weixin\qy\base\RequestException;
+use weixin\qy\base\ResponseException;
 
 class OAuth extends Base
 {
     CONST URL_AUTHORIZE = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=%s&redirect_uri=%s&response_type=code&scope=snsapi_base&state=%s#wechat_redirect';
-    const URL_INFO = '/cgi-bin/user/getuserinfo';
+    const API_INFO = '/cgi-bin/user/getuserinfo';
 
     public static function buildAuthorizeUrl($app_id, $redirect_uri, $state = '')
     {
@@ -23,19 +25,19 @@ class OAuth extends Base
 
     public function getUserInfo($code)
     {
-        $url = $this->getUrl(self::URL_INFO, ['code' => $code]);
+        $url = $this->getUrl(self::API_INFO, ['code' => $code]);
 
         $request = new CUrl();
         $request->get($url);
         if ($request->getErrno() === CURLE_OK) {
             $response = $request->getJsonData();
             if (isset($response['errcode'])) {
-                throw new \ErrorException($response['errmsg'], $response['errcode']);
+                throw new ResponseException($response['errmsg'], $response['errcode']);
             }
             else
                 return $response;
         }
         else
-            throw new \ErrorException($request->getError(), $request->getHttpCode());
+            throw new RequestException($request->getError(), $request->getHttpCode());
     }
 }

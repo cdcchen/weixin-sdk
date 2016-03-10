@@ -9,7 +9,7 @@
 namespace weixin\qy\push\models;
 
 
-class Voice extends Model
+class Voice extends Message
 {
     public $mediaID;
     public $format;

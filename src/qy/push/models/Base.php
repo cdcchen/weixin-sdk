@@ -9,7 +9,7 @@
 namespace weixin\qy\push\models;
 
 
-abstract class ModelBase
+abstract class Base
 {
     public $toUserName;
     public $fromUserName;

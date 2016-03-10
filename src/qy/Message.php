@@ -10,10 +10,12 @@ namespace weixin\qy;
 
 
 use phpplus\net\CUrl;
+use weixin\qy\base\RequestException;
+use weixin\qy\base\ResponseException;
 
 class Message extends Base
 {
-    const URL_SEND = '/cgi-bin/message/send';
+    const API_SEND = '/cgi-bin/message/send';
     const TYPE_TEXT = 'text';
     const TYPE_IMAGE = 'image';
     const TYPE_VOICE = 'voice';
@@ -89,7 +91,7 @@ class Message extends Base
 //        var_dump($attributes);exit;
 
         $attributes['agentid'] = $agentId;
-        $url = $this->getUrl(self::URL_SEND);
+        $url = $this->getUrl(self::API_SEND);
 
         $request = new CUrl();
         $request->post($url, json_encode($attributes, 320));
@@ -99,10 +101,10 @@ class Message extends Base
                 return static::checkResponse($response);
             }
             else
-                throw new \ErrorException($response['errmsg'], $response['errcode']);
+                throw new ResponseException($response['errmsg'], $response['errcode']);
         }
         else
-            throw new \ErrorException($request->getError(), $request->getHttpCode());
+            throw new RequestException($request->getError(), $request->getHttpCode());
     }
 
     private static function checkResponse($response)
@@ -120,7 +122,7 @@ class Message extends Base
                 $invalidMsg[] = $key . ': ' . $value;
             $invalidText = join('; ', $invalidMsg);
 
-            throw new \ErrorException('Invalid user or party or tag. ' . $invalidText);
+            throw new ResponseException('Invalid user or party or tag. ' . $invalidText);
         }
         else
             return true;

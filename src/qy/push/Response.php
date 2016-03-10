@@ -70,7 +70,7 @@ class Response
         return $this;
     }
 
-    protected function buildXml($extraXml)
+    protected function buildXml($extra_xml)
     {
         $tpl = '<xml>
            <Encrypt><![CDATA[%s]]></Encrypt>
@@ -81,7 +81,7 @@ class Response
 
         $timestamp = time();
         $nonce = uniqid();
-        $plainXml = $this->buildPlainXml($extraXml);
+        $plainXml = $this->buildPlainXml($extra_xml);
         $encryptXml = $this->buildEncryptedXml($plainXml);
         $signature = Base::getSHA1($this->_token, $timestamp, $nonce, $encryptXml);
 
@@ -94,9 +94,9 @@ class Response
         return $crypt->encrypt($xml, $this->_corpID);
     }
 
-    protected function buildPlainXml($extraXml)
+    protected function buildPlainXml($extra_xml)
     {
-        return '<xml>' . $this->defaultPlainXml() . $extraXml . '</xml>';
+        return '<xml>' . $this->defaultPlainXml() . $extra_xml . '</xml>';
     }
 
     protected function defaultPlainXml()

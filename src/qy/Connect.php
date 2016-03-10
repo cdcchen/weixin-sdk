@@ -10,16 +10,20 @@ namespace weixin\qy;
 
 
 use phpplus\net\CUrl;
+use weixin\qy\base\ApiException;
+use weixin\qy\base\RequestException;
+use weixin\qy\base\ResponseException;
 use weixin\qy\security\PrpCrypt;
 
 class Connect
 {
     const ENCODING_AES_KEY_LENGTH = 43;
-    const ACCESS_TOKEN_API = '/cgi-bin/gettoken';
+    const API_ACCESS_TOKEN = '/cgi-bin/gettoken';
 
     private $_token;
     private $_encodingAesKey;
     private $_corpId;
+
 
     /**
      * @param string $token 公众平台上，开发者设置的token
@@ -56,13 +60,10 @@ class Connect
             return false;
         }
 
-        if ($signature != $msg_signature) {
+        if ($signature != $msg_signature)
             return false;
-        }
 
-        $plainReplyEchoStr = $pc->decrypt($echo_str, $this->_corpId);
-
-        return $plainReplyEchoStr;
+        return $pc->decrypt($echo_str, $this->_corpId);
     }
 
     protected function getSignature($timestamp, $nonce, $echo_str)
@@ -70,7 +71,7 @@ class Connect
         return Base::getSHA1($this->_token, $timestamp, $nonce, $echo_str);
     }
 
-    public function getAccessToken($corp_secret, $onlyToken = true)
+    public function getAccessToken($corp_secret, $only_token = true)
     {
         $params = [
             'corpid' => $this->_corpId,
@@ -78,16 +79,16 @@ class Connect
         ];
 
         $request = new CUrl();
-        $request->get(Base::getRequestUrl(self::ACCESS_TOKEN_API), $params);
+        $request->get(Base::getRequestUrl(self::API_ACCESS_TOKEN), $params);
 
         if ($request->getErrno() === CURLE_OK) {
             $data = $request->getJsonData();
             static::checkAccessTokenResponse($data);
 
-            return $onlyToken ? $data['access_token'] : $data;
+            return $only_token ? $data['access_token'] : $data;
         }
         else
-            throw new \ErrorException($request->getError(), $request->getHttpCode());
+            throw new RequestException($request->getError(), $request->getHttpCode());
     }
 
     protected static function checkAccessTokenResponse($data)
@@ -96,8 +97,8 @@ class Connect
             return true;
         }
         elseif (isset($data['errcode']))
-            throw new \ErrorException($data['errmsg'], $data['errcode']);
+            throw new ApiException($data['errmsg'], $data['errcode']);
         else
-            throw new \ErrorException('Get access token error.');
+            throw new ResponseException('Get access token error.');
     }
 }

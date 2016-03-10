@@ -9,7 +9,7 @@
 namespace weixin\qy\push\models;
 
 
-class Image extends Model
+class Image extends Message
 {
     public $picUrl;
     public $mediaID;
