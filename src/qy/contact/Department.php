@@ -27,15 +27,11 @@ class Department extends Base
         $request = new CUrl();
         $request->get($url, ['id' => $id]);
 
-        if ($request->getErrno() === CURLE_OK) {
-            $response = $request->getJsonData();
-            if ($response['errcode'] == 0)
+        return static::handleRequest($request, function(CUrl $request){
+            return static::handleResponse($request, function($response){
                 return $response['department'];
-            else
-                throw new \ErrorException($response['errmsg'], $response['errcode']);
-        }
-        else
-            throw new \ErrorException($request->getError(), $request->getHttpCode());
+            });
+        });
     }
 
     public function create($name, $parent_id = 1, $order = 0, $id = 0)
@@ -53,15 +49,11 @@ class Department extends Base
         $request = new CUrl();
         $request->post($url, json_encode($params, 320));
 
-        if ($request->getErrno() === CURLE_OK) {
-            $response = $request->getJsonData();
-            if ($response['errcode'] == 0)
+        return static::handleRequest($request, function(CUrl $request){
+            return static::handleResponse($request, function($response){
                 return $response['id'];
-            else
-                throw new \ErrorException($response['errmsg'], $response['errcode']);
-        }
-        else
-            throw new \ErrorException($request->getError(), $request->getHttpCode());
+            });
+        });
     }
 
     public function update($id, $name, $parent_id = 1, $order = 0)
@@ -79,15 +71,11 @@ class Department extends Base
         $request = new CUrl();
         $request->post($url, json_encode($params, 320));
 
-        if ($request->getErrno() === CURLE_OK) {
-            $response = $request->getJsonData();
-            if ($response['errcode'] == 0)
+        return static::handleRequest($request, function(CUrl $request){
+            return static::handleResponse($request, function($response){
                 return true;
-            else
-                throw new \ErrorException($response['errmsg'], $response['errcode']);
-        }
-        else
-            throw new \ErrorException($request->getError(), $request->getHttpCode());
+            });
+        });
     }
 
     public function delete($id)
@@ -99,14 +87,10 @@ class Department extends Base
         $request = new CUrl();
         $request->get($url, $params);
 
-        if ($request->getErrno() === CURLE_OK) {
-            $response = $request->getJsonData();
-            if ($response['errcode'] == 0)
+        return static::handleRequest($request, function(CUrl $request){
+            return static::handleResponse($request, function($response){
                 return true;
-            else
-                throw new \ErrorException($response['errmsg'], $response['errcode']);
-        }
-        else
-            throw new \ErrorException($request->getError(), $request->getHttpCode());
+            });
+        });
     }
 }

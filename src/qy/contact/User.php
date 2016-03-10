@@ -34,15 +34,11 @@ class User extends Base
         $request = new CUrl();
         $request->post($url, json_encode($attributes, 320));
 
-        if ($request->getErrno() === CURLE_OK) {
-            $response = $request->getJsonData();
-            if ($response['errcode'] == 0)
+        return static::handleRequest($request, function(CUrl $request){
+            return static::handleResponse($request, function($response){
                 return true;
-            else
-                throw new \ErrorException($response['errmsg'], $response['errcode']);
-        }
-        else
-            throw new \ErrorException($request->getError(), $request->getHttpCode());
+            });
+        });
     }
 
     public function update($user_id, $attributes)
@@ -53,15 +49,11 @@ class User extends Base
         $request = new CUrl();
         $request->post($url, json_encode($attributes, 320));
 
-        if ($request->getErrno() === CURLE_OK) {
-            $response = $request->getJsonData();
-            if ($response['errcode'] == 0)
+        return static::handleRequest($request, function(CUrl $request){
+            return static::handleResponse($request, function($response){
                 return true;
-            else
-                throw new \ErrorException($response['errmsg'], $response['errcode']);
-        }
-        else
-            throw new \ErrorException($request->getError(), $request->getHttpCode());
+            });
+        });
     }
 
     public function delete($user_id)
@@ -70,15 +62,11 @@ class User extends Base
         $request = new CUrl();
         $request->get($url, ['userid' => $user_id]);
 
-        if ($request->getErrno() === CURLE_OK) {
-            $response = $request->getJsonData();
-            if ($response['errcode'] == 0)
+        return static::handleRequest($request, function(CUrl $request){
+            return static::handleResponse($request, function($response){
                 return true;
-            else
-                throw new \ErrorException($response['errmsg'], $response['errcode']);
-        }
-        else
-            throw new \ErrorException($request->getError(), $request->getHttpCode());
+            });
+        });
     }
 
     public function batchDelete($users)
@@ -89,15 +77,11 @@ class User extends Base
         $request = new CUrl();
         $request->post($url, json_encode($attributes, 320));
 
-        if ($request->getErrno() === CURLE_OK) {
-            $response = $request->getJsonData();
-            if ($response['errcode'] == 0)
+        return static::handleRequest($request, function(CUrl $request){
+            return static::handleResponse($request, function($response){
                 return true;
-            else
-                throw new \ErrorException($response['errmsg'], $response['errcode']);
-        }
-        else
-            throw new \ErrorException($request->getError(), $request->getHttpCode());
+            });
+        });
     }
 
     public function info($user_id)
@@ -106,15 +90,11 @@ class User extends Base
         $request = new CUrl();
         $request->get($url, ['userid' => $user_id]);
 
-        if ($request->getErrno() === CURLE_OK) {
-            $response = $request->getJsonData();
-            if ($response['errcode'] == 0)
+        return static::handleRequest($request, function(CUrl $request){
+            return static::handleResponse($request, function($response){
                 return $response;
-            else
-                throw new \ErrorException($response['errmsg'], $response['errcode']);
-        }
-        else
-            throw new \ErrorException($request->getError(), $request->getHttpCode());
+            });
+        });
 
     }
 
@@ -130,15 +110,11 @@ class User extends Base
         $request = new CUrl();
         $request->get($url, $attributes);
 
-        if ($request->getErrno() === CURLE_OK) {
-            $response = $request->getJsonData();
-            if ($response['errcode'] == 0)
+        return static::handleRequest($request, function(CUrl $request){
+            return static::handleResponse($request, function($response){
                 return $response['userlist'];
-            else
-                throw new \ErrorException($response['errmsg'], $response['errcode']);
-        }
-        else
-            throw new \ErrorException($request->getError(), $request->getHttpCode());
+            });
+        });
     }
 
     public function detailList($department_id, $status = 0, $fetch_child = false)
@@ -153,15 +129,11 @@ class User extends Base
         $request = new CUrl();
         $request->get($url, $attributes);
 
-        if ($request->getErrno() === CURLE_OK) {
-            $response = $request->getJsonData();
-            if ($response['errcode'] == 0)
+        return static::handleRequest($request, function(CUrl $request){
+            return static::handleResponse($request, function($response){
                 return $response['userlist'];
-            else
-                throw new \ErrorException($response['errmsg'], $response['errcode']);
-        }
-        else
-            throw new \ErrorException($request->getError(), $request->getHttpCode());
+            });
+        });
     }
 
     public function invite($user_id)
@@ -172,15 +144,11 @@ class User extends Base
         $request = new CUrl();
         $request->post($url, json_encode($attributes, 320));
 
-        if ($request->getErrno() === CURLE_OK) {
-            $response = $request->getJsonData();
-            if ($response['errcode'] == 0)
+        return static::handleRequest($request, function(CUrl $request){
+            return static::handleResponse($request, function($response){
                 return $response['type'];
-            else
-                throw new \ErrorException($response['errmsg'], $response['errcode']);
-        }
-        else
-            throw new \ErrorException($request->getError(), $request->getHttpCode());
+            });
+        });
     }
 
     public function userIdToOpenId($user_id, $agent_id = '')
@@ -193,18 +161,14 @@ class User extends Base
         $request = new CUrl();
         $request->post($url, json_encode($attributes, 320));
 
-        if ($request->getErrno() === CURLE_OK) {
-            $response = $request->getJsonData();
-            if ($response['errcode'] == 0)
+        return static::handleRequest($request, function(CUrl $request){
+            return static::handleResponse($request, function($response){
                 return [
                     'openid' => $response['openid'],
                     'appid' => $response['appid'],
                 ];
-            else
-                throw new \ErrorException($response['errmsg'], $response['errcode']);
-        }
-        else
-            throw new \ErrorException($request->getError(), $request->getHttpCode());
+            });
+        });
     }
 
     public function openIdToUserId($open_id)
@@ -215,14 +179,10 @@ class User extends Base
         $request = new CUrl();
         $request->post($url, json_encode($attributes, 320));
 
-        if ($request->getErrno() === CURLE_OK) {
-            $response = $request->getJsonData();
-            if ($response['errcode'] == 0)
+        return static::handleRequest($request, function(CUrl $request){
+            return static::handleResponse($request, function($response){
                 return $response['userid'];
-            else
-                throw new \ErrorException($response['errmsg'], $response['errcode']);
-        }
-        else
-            throw new \ErrorException($request->getError(), $request->getHttpCode());
+            });
+        });
     }
 }

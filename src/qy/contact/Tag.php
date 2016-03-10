@@ -11,6 +11,7 @@ namespace weixin\qy\contact;
 
 use phpplus\net\CUrl;
 use weixin\qy\Base;
+use weixin\qy\base\ResponseException;
 
 class Tag extends Base
 {
@@ -31,15 +32,11 @@ class Tag extends Base
         $request = new CUrl();
         $request->post($url, json_encode($attributes, 320));
 
-        if ($request->getErrno() === CURLE_OK) {
-            $response = $request->getJsonData();
-            if ($response['errcode'] == 0)
+        return static::handleRequest($request, function(CUrl $request){
+            return static::handleResponse($request, function($response){
                 return $response['tagid'];
-            else
-                throw new \ErrorException($response['errmsg'], $response['errcode']);
-        }
-        else
-            throw new \ErrorException($request->getError(), $request->getHttpCode());
+            });
+        });
     }
 
     public function update($id, $name)
@@ -53,15 +50,11 @@ class Tag extends Base
         $request = new CUrl();
         $request->post($url, json_encode($attributes, 320));
 
-        if ($request->getErrno() === CURLE_OK) {
-            $response = $request->getJsonData();
-            if ($response['errcode'] == 0)
+        return static::handleRequest($request, function(CUrl $request){
+            return static::handleResponse($request, function($response){
                 return true;
-            else
-                throw new \ErrorException($response['errmsg'], $response['errcode']);
-        }
-        else
-            throw new \ErrorException($request->getError(), $request->getHttpCode());
+            });
+        });
     }
 
     public function delete($id)
@@ -70,15 +63,11 @@ class Tag extends Base
         $request = new CUrl();
         $request->get($url, ['tagid' => $id]);
 
-        if ($request->getErrno() === CURLE_OK) {
-            $response = $request->getJsonData();
-            if ($response['errcode'] == 0)
+        return static::handleRequest($request, function(CUrl $request){
+            return static::handleResponse($request, function($response){
                 return true;
-            else
-                throw new \ErrorException($response['errmsg'], $response['errcode']);
-        }
-        else
-            throw new \ErrorException($request->getError(), $request->getHttpCode());
+            });
+        });
     }
 
     public function getUsers($id)
@@ -87,15 +76,11 @@ class Tag extends Base
         $request = new CUrl();
         $request->get($url, ['tagid' => $id]);
 
-        if ($request->getErrno() === CURLE_OK) {
-            $response = $request->getJsonData();
-            if ($response['errcode'] == 0)
+        return static::handleRequest($request, function(CUrl $request){
+            return static::handleResponse($request, function($response){
                 return $response['userlist'];
-            else
-                throw new \ErrorException($response['errmsg'], $response['errcode']);
-        }
-        else
-            throw new \ErrorException($request->getError(), $request->getHttpCode());
+            });
+        });
     }
 
     public function addUsers($id, array $user_list = [], array $party_list = [])
@@ -113,19 +98,14 @@ class Tag extends Base
         $request = new CUrl();
         $request->post($url, json_encode($attributes, 320));
 
-        if ($request->getErrno() === CURLE_OK) {
-            $response = $request->getJsonData();
-            if ($response['errcode'] == 0) {
+        return static::handleRequest($request, function(CUrl $request){
+            return static::handleResponse($request, function($response){
                 if ($response['invalidlist'] || $response['invalidparty'])
-                    throw new \ErrorException($response['errmsg'], $response['invalidlist'] . $response['invalidparty']);
+                    throw new ResponseException($response['errmsg'], $response['invalidlist'] . $response['invalidparty']);
                 else
                     return true;
-            }
-            else
-                throw new \ErrorException($response['errmsg'], $response['errcode']);
-        }
-        else
-            throw new \ErrorException($request->getError(), $request->getHttpCode());
+            });
+        });
     }
 
     public function deleteUsers($id, array $user_list = [], array $party_list = [])
@@ -143,9 +123,8 @@ class Tag extends Base
         $request = new CUrl();
         $request->post($url, json_encode($attributes, 320));
 
-        if ($request->getErrno() === CURLE_OK) {
-            $response = $request->getJsonData();
-            if ($response['errcode'] == 0) {
+        return static::handleRequest($request, function(CUrl $request){
+            return static::handleResponse($request, function($response){
                 $invalid = [
                     'invalidlist' => $response['invalidlist'],
                     'invalidparty' => $response['invalidparty'],
@@ -154,16 +133,12 @@ class Tag extends Base
 
                 if ($invalid) {
                     $invalidText = join('；', $invalid);
-                    throw new \ErrorException($response['errmsg'] . $invalidText);
+                    throw new ResponseException($response['errmsg'] . $invalidText);
                 }
                 else
                     return true;
-            }
-            else
-                throw new \ErrorException($response['errmsg'], $response['errcode']);
-        }
-        else
-            throw new \ErrorException($request->getError(), $request->getHttpCode());
+            });
+        });
     }
 
     public function all()
@@ -172,14 +147,10 @@ class Tag extends Base
         $request = new CUrl();
         $request->get($url);
 
-        if ($request->getErrno() === CURLE_OK) {
-            $response = $request->getJsonData();
-            if ($response['errcode'] == 0)
+        return static::handleRequest($request, function(CUrl $request){
+            return static::handleResponse($request, function($response){
                 return $response['taglist'];
-            else
-                throw new \ErrorException($response['errmsg'], $response['errcode']);
-        }
-        else
-            throw new \ErrorException($request->getError(), $request->getHttpCode());
+            });
+        });
     }
 }

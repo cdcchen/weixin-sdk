@@ -10,7 +10,6 @@ namespace weixin\qy;
 
 
 use phpplus\net\CUrl;
-use weixin\qy\base\RequestException;
 use weixin\qy\base\ResponseException;
 
 class Media extends Base
@@ -38,15 +37,11 @@ class Media extends Base
         $request = new CUrl();
         $request->post($url, $media, true);
 
-        if ($request->getErrno() === CURLE_OK) {
-            $response = $request->getJsonData();
-            if ($response['errcode'] == 0)
+        return static::handleRequest($request, function(CUrl $request){
+            return static::handleResponse($request, function($response){
                 return $response['media_id'];
-            else
-                throw new ResponseException($response['errmsg'], $response['errcode']);
-        }
-        else
-            throw new RequestException($request->getError(), $request->getHttpCode());
+            });
+        });
     }
 
     public function uploadImage($filename)
@@ -57,15 +52,11 @@ class Media extends Base
         $request = new CUrl();
         $request->post($url, $media, true);
 
-        if ($request->getErrno() === CURLE_OK) {
-            $response = $request->getJsonData();
-            if ($response['errcode'] == 0)
+        return static::handleRequest($request, function(CUrl $request){
+            return static::handleResponse($request, function($response){
                 return $response['url'];
-            else
-                throw new ResponseException($response['errmsg'], $response['errcode']);
-        }
-        else
-            throw new RequestException($request->getError(), $request->getHttpCode());
+            });
+        });
     }
 
     public function makeMediaParams($filename)
@@ -86,16 +77,15 @@ class Media extends Base
         $request = new CUrl();
         $request->returnHeaders(true)->get($url, ['media_id' => $media_id]);
 
-        if ($request->getErrno() === CURLE_OK) {
+        return static::handleRequest($request, function(CUrl $request){
             $contentType = $request->getResponseHeaders('content-type');
-            if (stripos($contentType, 'json') !== false) {
+            if (stripos($contentType, 'json') === false) {
+                return $request->getBody();
+            }
+            else {
                 $response = $request->getJsonData();
                 throw new ResponseException($response['errmsg'], $response['errcode']);
             }
-            else
-                return $request->getBody();
-        }
-        else
-            throw new RequestException($request->getError(), $request->getHttpCode());
+        });
     }
 }

@@ -26,11 +26,11 @@ class Connect
 
 
     /**
+     * @param string $corp_id 公众平台的corpid
      * @param string $token 公众平台上，开发者设置的token
      * @param string $encoding_aes_key 公众平台上，开发者设置的EncodingAESKey
-     * @param string $corp_id 公众平台的corpid
      */
-    public function __construct($corp_id, $token, $encoding_aes_key)
+    public function __construct($corp_id, $token = null, $encoding_aes_key = null)
     {
         $this->_token = $token;
         $this->_encodingAesKey = $encoding_aes_key;
@@ -66,11 +66,6 @@ class Connect
         return $pc->decrypt($echo_str, $this->_corpId);
     }
 
-    protected function getSignature($timestamp, $nonce, $echo_str)
-    {
-        return Base::getSHA1($this->_token, $timestamp, $nonce, $echo_str);
-    }
-
     public function getAccessToken($corp_secret, $only_token = true)
     {
         $params = [
@@ -89,6 +84,11 @@ class Connect
         }
         else
             throw new RequestException($request->getError(), $request->getHttpCode());
+    }
+
+    protected function getSignature($timestamp, $nonce, $echo_str)
+    {
+        return Base::getSHA1($this->_token, $timestamp, $nonce, $echo_str);
     }
 
     protected static function checkAccessTokenResponse($data)

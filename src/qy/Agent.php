@@ -40,12 +40,10 @@ class Agent extends Base
         $request = new CUrl();
         $request->post($url, json_encode($attributes, 320));
 
-        static::handleRequest($request, function(CUrl $request){
-            $response = $request->getJsonData();
-            if ($response['errcode'] == 0)
+        return static::handleRequest($request, function(CUrl $request){
+            return static::handleResponse($request, function($response){
                 return true;
-            else
-                throw new \ErrorException($response['errmsg'], $response['errcode']);
+            });
         });
     }
 
@@ -56,14 +54,10 @@ class Agent extends Base
         $request = new CUrl();
         $request->get($url);
 
-        if ($request->getErrno() === CURLE_OK) {
-            $response = $request->getJsonData();
-            if ($response['errcode'] == 0)
+        return static::handleRequest($request, function(CUrl $request){
+            return static::handleResponse($request, function($response){
                 return $response['agentlist'];
-            else
-                throw new \ErrorException($response['errmsg'], $response['errcode']);
-        }
-        else
-            throw new \ErrorException($request->getError(), $request->getHttpCode());
+            });
+        });
     }
 }

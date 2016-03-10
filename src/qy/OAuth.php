@@ -10,7 +10,6 @@ namespace weixin\qy;
 
 
 use phpplus\net\CUrl;
-use weixin\qy\base\RequestException;
 use weixin\qy\base\ResponseException;
 
 class OAuth extends Base
@@ -29,15 +28,14 @@ class OAuth extends Base
 
         $request = new CUrl();
         $request->get($url);
-        if ($request->getErrno() === CURLE_OK) {
+
+        return static::handleRequest($request, function(CUrl $request){
             $response = $request->getJsonData();
             if (isset($response['errcode'])) {
                 throw new ResponseException($response['errmsg'], $response['errcode']);
             }
             else
                 return $response;
-        }
-        else
-            throw new RequestException($request->getError(), $request->getHttpCode());
+        });
     }
 }

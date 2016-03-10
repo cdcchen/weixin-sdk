@@ -10,7 +10,6 @@ namespace weixin\qy;
 
 
 use phpplus\net\CUrl;
-use weixin\qy\base\RequestException;
 use weixin\qy\base\ResponseException;
 
 class Message extends Base
@@ -88,23 +87,17 @@ class Message extends Base
 
     public function send($agentId, array $attributes)
     {
-//        var_dump($attributes);exit;
-
         $attributes['agentid'] = $agentId;
         $url = $this->getUrl(self::API_SEND);
 
         $request = new CUrl();
         $request->post($url, json_encode($attributes, 320));
-        if ($request->getErrno() === CURLE_OK) {
-            $response = $request->getJsonData();
-            if ($response['errcode'] == 0) {
+
+        return static::handleRequest($request, function(CUrl $request){
+            return static::handleResponse($request, function($response){
                 return static::checkResponse($response);
-            }
-            else
-                throw new ResponseException($response['errmsg'], $response['errcode']);
-        }
-        else
-            throw new RequestException($request->getError(), $request->getHttpCode());
+            });
+        });
     }
 
     private static function checkResponse($response)

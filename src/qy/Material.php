@@ -16,7 +16,7 @@ class Material extends Base
     const BATCH_GET_MAX_COUNT = 50;
 
     const API_UPLOAD = '/cgi-bin/material/add_material';
-    const API_DOWNLOAD = '/cgi-bin/material/get';
+    const API_GET_ITEM = '/cgi-bin/material/get';
     const API_ADD_NEWS = '/cgi-bin/material/add_mpnews';
     const API_UPDATE_NEWS = '/cgi-bin/material/update_MPNEWS';
     const API_GET_COUNT = '/cgi-bin/material/get_count';
@@ -43,15 +43,11 @@ class Material extends Base
         $request = new CUrl();
         $request->post($url, $media, true);
 
-        if ($request->getErrno() === CURLE_OK) {
-            $response = $request->getJsonData();
-            if ($response['errcode'] == 0)
+        return static::handleRequest($request, function(CUrl $request){
+            return static::handleResponse($request, function($response){
                 return $response['media_id'];
-            else
-                throw new \ErrorException($response['errmsg'], $response['errcode']);
-        }
-        else
-            throw new \ErrorException($request->getError(), $request->getHttpCode());
+            });
+        });
     }
 
     protected static function makeMediaParams($filename)
@@ -65,31 +61,27 @@ class Material extends Base
         ];
     }
 
-    public function downloadFile($media_id, $agent_id)
+    public function fetch($media_id, $agent_id)
     {
-        $url = $this->getUrl(self::API_DOWNLOAD);
+        $url = $this->getUrl(self::API_GET_ITEM);
 
         $request = new CUrl();
-        $request->returnHeaders(true)->get($url, ['media_id' => $media_id, 'agentid' => $agent_id]);
+        $request->returnHeaders(true)
+            ->get($url, ['media_id' => $media_id, 'agentid' => $agent_id]);
 
-        if ($request->getErrno() === CURLE_OK) {
+        return static::handleRequest($request, function(CUrl $request){
             $contentType = $request->getResponseHeaders('content-type');
             if (stripos($contentType, 'json') === false)
                 return $request->getBody();
             else {
-                $response = $request->getJsonData();
-                if (isset($response['errcode']))
-                    throw new \ErrorException($response['errmsg'], $response['errcode']);
-                else
-                    throw new \ErrorException('Please call downloadNews method for get mpnews.');
-
+                return static::handleResponse($request, function($response){
+                    return $response['mpnews'];
+                });
             }
-        }
-        else
-            throw new \ErrorException($request->getError(), $request->getHttpCode());
+        });
     }
 
-    public function addNews($agent_id, $news)
+    public function createNews($agent_id, $news)
     {
         $url = $this->getUrl(self::API_ADD_NEWS, $this->getAccessToken());
 
@@ -133,29 +125,6 @@ class Material extends Base
             }
             else
                 throw new \ErrorException($response['errmsg'], $response['errcode']);
-        }
-        else
-            throw new \ErrorException($request->getError(), $request->getHttpCode());
-    }
-
-    public function newsInfo($media_id, $agent_id)
-    {
-        $url = $this->getUrl(self::API_DOWNLOAD);
-
-        $request = new CUrl();
-        $request->returnHeaders(true)->get($url, ['media_id' => $media_id, 'agentid' => $agent_id]);
-
-        if ($request->getErrno() === CURLE_OK) {
-            $contentType = $request->getResponseHeaders('content-type');
-            if (stripos($contentType, 'json') === false)
-                throw new \ErrorException('Please call downloadFile method for get files.');
-            else {
-                $response = $request->getJsonData();
-                if (isset($response['mpnews']))
-                    return $response['mpnews'];
-                else
-                    throw new \ErrorException($response['errmsg'], $response['errcode']);
-            }
         }
         else
             throw new \ErrorException($request->getError(), $request->getHttpCode());

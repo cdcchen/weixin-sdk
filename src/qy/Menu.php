@@ -10,8 +10,6 @@ namespace weixin\qy;
 
 
 use phpplus\net\CUrl;
-use weixin\qy\base\RequestException;
-use weixin\qy\base\ResponseException;
 
 class Menu extends Base
 {
@@ -28,16 +26,12 @@ class Menu extends Base
 
         $request = new CUrl();
         $request->post($url, json_encode($attributes, 320));
-        if ($request->getErrno() === CURLE_OK) {
-            $response = $request->getJsonData();
-            if ($response['errcode'] == 0) {
+
+        return static::handleRequest($request, function(CUrl $request){
+            return static::handleResponse($request, function($response){
                 return true;
-            }
-            else
-                throw new ResponseException($response['errmsg'], $response['errcode']);
-        }
-        else
-            throw new RequestException($request->getError(), $request->getHttpCode());
+            });
+        });
     }
 
     public function delete($agent_id)
@@ -46,16 +40,12 @@ class Menu extends Base
 
         $request = new CUrl();
         $request->post($url);
-        if ($request->getErrno() === CURLE_OK) {
-            $response = $request->getJsonData();
-            if ($response['errcode'] == 0) {
+
+        return static::handleRequest($request, function(CUrl $request){
+            return static::handleResponse($request, function($response){
                 return true;
-            }
-            else
-                throw new  ResponseException($response['errmsg'], $response['errcode']);
-        }
-        else
-            throw new RequestException($request->getError(), $request->getHttpCode());
+            });
+        });
     }
 
     public function query($agent_id)
@@ -64,15 +54,11 @@ class Menu extends Base
 
         $request = new CUrl();
         $request->get($url);
-        if ($request->getErrno() === CURLE_OK) {
-            $response = $request->getJsonData();
-            if ($response['errcode'] == 0) {
+
+        return static::handleRequest($request, function(CUrl $request){
+            return static::handleResponse($request, function($response){
                 return $response;
-            }
-            else
-                throw new ResponseException($response['errmsg'], $response['errcode']);
-        }
-        else
-            throw new RequestException($request->getError(), $request->getHttpCode());
+            });
+        });
     }
 }
