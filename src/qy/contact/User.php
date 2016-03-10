@@ -14,6 +14,10 @@ use weixin\qy\Base;
 
 class User extends Base
 {
+    const STATUS_FOLLOWED = 1;
+    const STATUS_FORBIDDEN = 2;
+    const STATUS_NOT_FOLLOWED = 4;
+
     const URL_CREATE = '/cgi-bin/user/create';
     const URL_UPDATE = '/cgi-bin/user/update';
     const URL_DELETE = '/cgi-bin/user/delete';
