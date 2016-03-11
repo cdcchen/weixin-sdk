@@ -49,8 +49,8 @@ class Chat extends Base
         $request = new CUrl();
         $request->post($url, json_encode($attributes, 320));
 
-        return static::handleRequest($request, function(CUrl $request){
-            return static::handleResponse($request, function($response){
+        return static::handleRequest($request, function (CUrl $request) {
+            return static::handleResponse($request, function ($response) {
                 return true;
             });
         });
@@ -64,15 +64,15 @@ class Chat extends Base
         $request = new CUrl();
         $request->get($url);
 
-        return static::handleRequest($request, function(CUrl $request){
-            return static::handleResponse($request, function($response){
+        return static::handleRequest($request, function (CUrl $request) {
+            return static::handleResponse($request, function ($response) {
                 return $response['chat_info'];
             });
         });
     }
 
 
-    public function update($chat_id, $op_user, $attributes = [])
+    public function update($chat_id, $op_user, $name = null, $owner = null, $attributes = [])
     {
         $url = $this->getUrl(self::API_UPDATE);
 
@@ -80,14 +80,30 @@ class Chat extends Base
 
         $attributes['chatid'] = $chat_id;
         $attributes['op_user'] = $op_user;
+        if ($name) $attributes['name'] = $name;
+        if ($owner) $attributes['owner'] = $owner;
 
         $request->post($url, json_encode($attributes, 320));
 
-        return static::handleRequest($request, function(CUrl $request){
-            return static::handleResponse($request, function($response){
+        return static::handleRequest($request, function (CUrl $request) {
+            return static::handleResponse($request, function ($response) {
                 return true;
             });
         });
+    }
+
+    public function updateUsers($chat_id, $op_user, $add_user_list, $del_user_list = [])
+    {
+        if (empty($add_user_list) && empty($del_user_list))
+            throw new \InvalidArgumentException('$add_user_list and $del_user_list can\'t at the same time is empty');
+
+        $attributes = [];
+        if ($add_user_list)
+            $attributes['add_user_list'] = $add_user_list;
+        if ($del_user_list)
+            $attributes['del_user_list'] = $del_user_list;
+
+        return $this->update($chat_id, $op_user, null, null, $attributes);
     }
 
 
@@ -104,8 +120,8 @@ class Chat extends Base
 
         $request->post($url, json_encode($attributes, 320));
 
-        return static::handleRequest($request, function(CUrl $request){
-            return static::handleResponse($request, function($response){
+        return static::handleRequest($request, function (CUrl $request) {
+            return static::handleResponse($request, function ($response) {
                 return true;
             });
         });
@@ -125,8 +141,8 @@ class Chat extends Base
 
         $request->post($url, json_encode($attributes, 320));
 
-        return static::handleRequest($request, function(CUrl $request){
-            return static::handleResponse($request, function($response){
+        return static::handleRequest($request, function (CUrl $request) {
+            return static::handleResponse($request, function ($response) {
                 return true;
             });
         });
@@ -143,8 +159,8 @@ class Chat extends Base
 
         $request->post($url, json_encode($attributes, 320));
 
-        return static::handleRequest($request, function(CUrl $request){
-            return static::handleResponse($request, function($response){
+        return static::handleRequest($request, function (CUrl $request) {
+            return static::handleResponse($request, function ($response) {
                 return isset($response['invaliduser']) ? $response['invaliduser'] : true;
             });
         });
@@ -188,16 +204,14 @@ class Chat extends Base
 
         $request = new CUrl();
 
-        $attributes = [
-            'receiver' => ['type' => $receiver_type, 'id' => $receiver_id],
-            'sender' => $sender,
-            'msg_type' => $msg_type,
-        ];
+        $attributes['receiver'] = ['type' => $receiver_type, 'id' => $receiver_id];
+        $attributes['sender'] = $sender;
+        $attributes['msgtype'] = $msg_type;
 
         $request->post($url, json_encode($attributes, 320));
 
-        return static::handleRequest($request, function(CUrl $request){
-            return static::handleResponse($request, function($response){
+        return static::handleRequest($request, function (CUrl $request) {
+            return static::handleResponse($request, function ($response) {
                 return true;
             });
         });
