@@ -76,15 +76,14 @@ class Base
 
     protected static function handleRequest(CUrl $request, callable $success = null, callable $failed = null)
     {
-        if ($request->getErrno() === CURLE_OK) {
-            return call_user_func($success, $request);
-        }
-        else {
+        if ($request->hasError()) {
             if ($failed)
                 return call_user_func($failed, $request);
             else
                 throw new RequestException($request->getError(), $request->getHttpCode());
         }
+        else
+            return call_user_func($success, $request);
     }
 
     protected static function handleResponse(CUrl $request, callable $success = null, callable $failed = null)
