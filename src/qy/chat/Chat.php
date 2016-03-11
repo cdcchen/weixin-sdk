@@ -6,7 +6,7 @@
  * Date: 16/3/9
  * Time: 22:12
  */
-namespace weixin\qy;
+namespace weixin\qy\chat;
 
 use phpplus\net\CUrl;
 use weixin\qy\Base;

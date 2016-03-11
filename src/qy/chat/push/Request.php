@@ -6,7 +6,7 @@
  * Time: 下午5:12
  */
 
-namespace weixin\qy\chat;
+namespace weixin\qy\chat\push;
 
 
 use weixin\qy\push\models\Event;
