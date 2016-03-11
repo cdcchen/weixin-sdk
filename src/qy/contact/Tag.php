@@ -52,7 +52,7 @@ class Tag extends Base
 
         return static::handleRequest($request, function(CUrl $request){
             return static::handleResponse($request, function($response){
-                return true;
+                return $response['data'];
             });
         });
     }

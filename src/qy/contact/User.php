@@ -22,17 +22,17 @@ class User extends Base
     const URL_UPDATE = '/cgi-bin/user/update';
     const URL_DELETE = '/cgi-bin/user/delete';
     const URL_BATCH_DELETE = '/cgi-bin/user/batchdelete';
-    const URL_INFO = '/cgi-bin/user/get';
+    const URL_GET_INFO = '/cgi-bin/user/get';
     const URL_SIMPLE_LIST = '/cgi-bin/user/simplelist';
     const URL_DETAIL_LIST = '/cgi-bin/user/list';
     const URL_CONVERT_TO_OPENID = '/cgi-bin/user/convert_to_openid';
     const URL_CONVERT_TO_USERID = '/cgi-bin/user/convert_to_userid';
     const URL_INVITE = '/cgi-bin/invite/send';
 
-    public function create(array $attributes, array $extattr = [])
+    public function create(array $attributes, array $ext_attr = [])
     {
-        if ($extattr)
-            $attributes['extattr'] = $extattr;
+        if ($ext_attr)
+            $attributes['extattr'] = $ext_attr;
 
         $url = $this->getUrl(self::URL_CREATE);
         $request = new CUrl();
@@ -88,9 +88,9 @@ class User extends Base
         });
     }
 
-    public function info($user_id)
+    public function fetch($user_id)
     {
-        $url = $this->getUrl(self::URL_INFO);
+        $url = $this->getUrl(self::URL_GET_INFO);
         $request = new CUrl();
         $request->get($url, ['userid' => $user_id]);
 
@@ -102,7 +102,7 @@ class User extends Base
 
     }
 
-    public function simpleList($department_id, $status = 0, $fetch_child = false)
+    public function getSimpleList($department_id, $status = 0, $fetch_child = false)
     {
         $attributes = [
             'department_id' => (int)$department_id,
@@ -121,7 +121,7 @@ class User extends Base
         });
     }
 
-    public function detailList($department_id, $status = 0, $fetch_child = false)
+    public function getDetailList($department_id, $status = 0, $fetch_child = false)
     {
         $attributes = [
             'department_id' => (int)$department_id,
@@ -155,7 +155,7 @@ class User extends Base
         });
     }
 
-    public function userIdToOpenId($user_id, $agent_id = '')
+    public function getOpenIdByUserIdTo($user_id, $agent_id = '')
     {
         $attributes = ['userid' => $user_id];
         if ($agent_id)
@@ -175,7 +175,7 @@ class User extends Base
         });
     }
 
-    public function openIdToUserId($open_id)
+    public function getUserIdByOpenId($open_id)
     {
         $attributes = ['openid' => $open_id];
 
