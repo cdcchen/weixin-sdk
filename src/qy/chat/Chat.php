@@ -72,38 +72,74 @@ class Chat extends Base
     }
 
 
-    public function update($chat_id, $op_user, $name = null, $owner = null, $attributes = [])
+    public function update($chat_id, $op_user, $name = null, $owner = null, $add_user_list = [], $del_user_list = [])
     {
-        $url = $this->getUrl(self::API_UPDATE);
+        $extraAttributes = static::buildUpdateAttributes($name, $owner, $add_user_list, $del_user_list);
+        if (empty($extraAttributes))
+            throw new \InvalidArgumentException('Property is not set needs to be updated.');
 
+        $url = $this->getUrl(self::API_UPDATE);
         $request = new CUrl();
 
-        $attributes['chatid'] = $chat_id;
-        $attributes['op_user'] = $op_user;
-        if ($name) $attributes['name'] = $name;
-        if ($owner) $attributes['owner'] = $owner;
+        $attributes = [
+            'chatid' => $chat_id,
+            'op_user' => $op_user,
+        ];
+        $attributes = array_merge($attributes, $extraAttributes);
 
         $request->post($url, json_encode($attributes, 320));
 
-        return static::handleRequest($request, function (CUrl $request) {
-            return static::handleResponse($request, function ($response) {
+        return static::handleRequest($request, function(CUrl $request){
+            return static::handleResponse($request, function($response){
                 return true;
             });
         });
     }
 
-    public function updateUsers($chat_id, $op_user, $add_user_list, $del_user_list = [])
+    protected static function buildUpdateAttributes($name, $owner, array $add_user_list, array $del_user_list)
+    {
+        $addUserList = (array)$add_user_list;
+        $delUserList = (array)$del_user_list;
+
+        $attributes = [];
+        if ($name) $attributes['name'] = $name;
+
+        if ($owner) {
+            $attributes['owner'] = $owner;
+            $addUserList[] = $owner;
+        }
+
+        if ($add_user_list)
+            $attributes['add_user_list'] = $addUserList;
+
+        if ($del_user_list)
+            $attributes['del_user_list'] = $delUserList;
+
+        return $attributes;
+    }
+
+    public function updateUsers($chat_id, $op_user, array $add_user_list, array $del_user_list)
     {
         if (empty($add_user_list) && empty($del_user_list))
             throw new \InvalidArgumentException('$add_user_list and $del_user_list can\'t at the same time is empty');
 
-        $attributes = [];
-        if ($add_user_list)
-            $attributes['add_user_list'] = $add_user_list;
-        if ($del_user_list)
-            $attributes['del_user_list'] = $del_user_list;
+        return $this->update($chat_id, $op_user, null, null, $add_user_list, $del_user_list);
+    }
 
-        return $this->update($chat_id, $op_user, null, null, $attributes);
+    public function addUsers($chat_id, $op_user, array $add_user_list)
+    {
+        if (empty($add_user_list))
+            throw new \InvalidArgumentException('$add_user_list can\'t be empty');
+
+        return $this->updateUsers($chat_id, $op_user, $add_user_list, []);
+    }
+
+    public function removeUsers($chat_id, $op_user, array $del_user_list)
+    {
+        if (empty($del_user_list))
+            throw new \InvalidArgumentException('$del_user_list can\'t be empty');
+
+        return $this->updateUsers($chat_id, $op_user, [], $del_user_list);
     }
 
 
