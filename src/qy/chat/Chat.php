@@ -165,7 +165,7 @@ class Chat extends Base
 
     public function setMute($user_mute_list = [])
     {
-        $url = $this->getUrl(self::API_CLEAR_NOTIFY);
+        $url = $this->getUrl(self::API_SET_MUTE);
 
         $request = new CUrl();
 
@@ -214,7 +214,7 @@ class Chat extends Base
 
     public function send($receiver_type, $receiver_id, $sender, $msg_type, $attributes = [])
     {
-        $url = $this->getUrl(self::API_CLEAR_NOTIFY);
+        $url = $this->getUrl(self::API_SEND);
 
         $request = new CUrl();
 
