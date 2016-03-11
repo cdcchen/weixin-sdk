@@ -6,7 +6,7 @@
  * Date: 16/3/9
  * Time: 22:12
  */
-namespace weixin\qy\chat;
+namespace weixin\qy;
 
 use phpplus\net\CUrl;
 use weixin\qy\Base;
@@ -94,28 +94,6 @@ class Chat extends Base
                 return true;
             });
         });
-    }
-
-    protected static function buildUpdateAttributes($name, $owner, array $add_user_list, array $del_user_list)
-    {
-        $addUserList = (array)$add_user_list;
-        $delUserList = (array)$del_user_list;
-
-        $attributes = [];
-        if ($name) $attributes['name'] = $name;
-
-        if ($owner) {
-            $attributes['owner'] = $owner;
-            $addUserList[] = $owner;
-        }
-
-        if ($add_user_list)
-            $attributes['add_user_list'] = $addUserList;
-
-        if ($del_user_list)
-            $attributes['del_user_list'] = $delUserList;
-
-        return $attributes;
     }
 
     public function updateUsers($chat_id, $op_user, array $add_user_list, array $del_user_list)
@@ -253,6 +231,28 @@ class Chat extends Base
         });
     }
 
+
+    protected static function buildUpdateAttributes($name, $owner, array $add_user_list, array $del_user_list)
+    {
+        $addUserList = (array)$add_user_list;
+        $delUserList = (array)$del_user_list;
+
+        $attributes = [];
+        if ($name) $attributes['name'] = $name;
+
+        if ($owner) {
+            $attributes['owner'] = $owner;
+            $addUserList[] = $owner;
+        }
+
+        if ($add_user_list)
+            $attributes['add_user_list'] = $addUserList;
+
+        if ($del_user_list)
+            $attributes['del_user_list'] = $delUserList;
+
+        return $attributes;
+    }
 
     protected static function checkCreateArguments($owner, $user_list)
     {
