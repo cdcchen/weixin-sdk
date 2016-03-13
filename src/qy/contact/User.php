@@ -10,10 +10,10 @@ namespace weixin\qy\contact;
 
 
 use phpplus\net\CUrl;
-use weixin\qy\Base;
 use weixin\qy\base\UpdateTrait;
+use weixin\qy\Request;
 
-class User extends Base
+class User extends Request
 {
     use UpdateTrait;
 
@@ -178,10 +178,8 @@ class User extends Base
 
         return static::handleRequest($request, function(CUrl $request){
             return static::handleResponse($request, function($response){
-                return [
-                    'openid' => $response['openid'],
-                    'appid' => $response['appid'],
-                ];
+                unset($response['errcode'], $response['errmsg']);
+                return $response;
             });
         });
     }

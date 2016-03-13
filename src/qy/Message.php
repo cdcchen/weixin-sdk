@@ -10,9 +10,9 @@ namespace weixin\qy;
 
 
 use phpplus\net\CUrl;
-use weixin\qy\base\ResponseException;
+use weixin\base\ResponseException;
 
-class Message extends Base
+class Message extends Request
 {
     const API_SEND = '/cgi-bin/message/send';
 
@@ -29,10 +29,10 @@ class Message extends Base
 
     protected $_attributes = [];
 
-    public function send($agentId, array $attributes)
+    public function send($agent_id, array $attributes)
     {
         $attributes = array_merge($this->_attributes, $attributes);
-        $attributes['agentid'] = $agentId;
+        $attributes['agentid'] = $agent_id;
 
         $request = new CUrl();
         $url = $this->getUrl(self::API_SEND);
@@ -49,31 +49,31 @@ class Message extends Base
 
     ############## send *(text|image|voice|video|file|news|mpnews) shortcut methods ############
 
-    public function sendText($agentId, $content, array $attributes)
+    public function sendText($agent_id, $content, array $attributes)
     {
         $attributes['msgtype'] = self::TYPE_TEXT;
         $attributes['text']['content'] = $content;
 
-        return $this->send($agentId, $attributes);
+        return $this->send($agent_id, $attributes);
     }
 
-    public function sendImage($agentId, $media_id, array $attributes)
+    public function sendImage($agent_id, $media_id, array $attributes)
     {
         $attributes['msgtype'] = self::TYPE_IMAGE;
         $attributes['image']['media_id'] = $media_id;
 
-        return $this->send($agentId, $attributes);
+        return $this->send($agent_id, $attributes);
     }
 
-    public function sendVoice($agentId, $media_id, array $attributes)
+    public function sendVoice($agent_id, $media_id, array $attributes)
     {
         $attributes['msgtype'] = self::TYPE_VOICE;
         $attributes['voice']['media_id'] = $media_id;
 
-        return $this->send($agentId, $attributes);
+        return $this->send($agent_id, $attributes);
     }
 
-    public function sendVideo($agentId, $video, array $attributes)
+    public function sendVideo($agent_id, $video, array $attributes)
     {
         $attributes['msgtype'] = self::TYPE_VIDEO;
         if (is_array($video))
@@ -81,26 +81,26 @@ class Message extends Base
         else
             $attributes['video']['media_id'] = $video;
 
-        return $this->send($agentId, $attributes);
+        return $this->send($agent_id, $attributes);
     }
 
-    public function sendFile($agentId, $media_id, array $attributes)
+    public function sendFile($agent_id, $media_id, array $attributes)
     {
         $attributes['msgtype'] = self::TYPE_FILE;
         $attributes['file']['media_id'] = $media_id;
 
-        return $this->send($agentId, $attributes);
+        return $this->send($agent_id, $attributes);
     }
 
-    public function sendNews($agentId, $articles, array $attributes)
+    public function sendNews($agent_id, $articles, array $attributes)
     {
         $attributes['msgtype'] = self::TYPE_NEWS;
         $attributes['news']['articles'] = $articles;
 
-        return $this->send($agentId, $attributes);
+        return $this->send($agent_id, $attributes);
     }
 
-    public function sendMPNews($agentId, $articles, array $attributes)
+    public function sendMPNews($agent_id, $articles, array $attributes)
     {
         $attributes['msgtype'] = self::TYPE_MPNEWS;
         if (is_array($articles))
@@ -108,7 +108,7 @@ class Message extends Base
         else
             $attributes['mpnews']['media_id'] = $articles;
 
-        return $this->send($agentId, $attributes);
+        return $this->send($agent_id, $attributes);
     }
 
 

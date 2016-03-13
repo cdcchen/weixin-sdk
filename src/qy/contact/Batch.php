@@ -10,9 +10,9 @@ namespace weixin\qy\contact;
 
 
 use phpplus\net\CUrl;
-use weixin\qy\Base;
+use weixin\qy\Request;
 
-class Batch extends Base
+class Batch extends Request
 {
     const TYPE_INVITE_USER      = 'invite_user';
     const TYPE_SYNC_USER        = 'sync_user';

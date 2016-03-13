@@ -9,10 +9,10 @@
 namespace weixin\qy\chat;
 
 use phpplus\net\CUrl;
-use weixin\qy\Base;
 use weixin\qy\base\UpdateTrait;
+use weixin\qy\Request;
 
-class Chat extends Base
+class Chat extends Request
 {
     use UpdateTrait;
 
@@ -81,7 +81,7 @@ class Chat extends Base
 
     public function update($chat_id, $op_user, array $attributes = [])
     {
-        $attributes = array_merge($this->_attributes, $attributes);
+        $attributes = array_merge($this->_updateAttributes, $attributes);
         $attributes['chatid'] = $chat_id;
         $attributes['op_user'] = $op_user;
 

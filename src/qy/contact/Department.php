@@ -10,9 +10,9 @@ namespace weixin\qy\contact;
 
 
 use phpplus\net\CUrl;
-use weixin\qy\Base;
+use weixin\qy\Request;
 
-class Department extends Base
+class Department extends Request
 {
     const API_CREATE = '/cgi-bin/department/create';
     const API_UPDATE = '/cgi-bin/department/update';

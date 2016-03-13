@@ -10,10 +10,10 @@ namespace weixin\qy;
 
 
 use phpplus\net\CUrl;
-use phpplus\filesystem\FileHelper;
+use phpplus\net\UrlHelper;
 use weixin\qy\base\UpdateTrait;
 
-class Agent extends Base
+class Agent extends Request
 {
     use UpdateTrait;
 
@@ -107,7 +107,7 @@ class Agent extends Base
 
     public function setHomeUrl($value)
     {
-        if (!FileHelper::isUrl($value))
+        if (!UrlHelper::isUrl($value))
             throw new \InvalidArgumentException('The value is not invalid');
 
         return $this->setUpdateAttribute('home_url', $value);

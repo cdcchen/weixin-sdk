@@ -10,9 +10,9 @@ namespace weixin\qy;
 
 
 use phpplus\net\CUrl;
-use weixin\qy\base\ResponseException;
+use weixin\base\ResponseException;
 
-class OAuth extends Base
+class OAuth extends Request
 {
     CONST URL_AUTHORIZE = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=%s&redirect_uri=%s&response_type=code&scope=snsapi_base&state=%s#wechat_redirect';
     const API_INFO = '/cgi-bin/user/getuserinfo';

@@ -11,9 +11,9 @@ namespace weixin\qy;
 
 use phpplus\filesystem\FileHelper;
 use phpplus\net\CUrl;
-use weixin\qy\base\ResponseException;
+use weixin\base\ResponseException;
 
-class Media extends Base
+class Media extends Request
 {
     const API_UPLOAD = '/cgi-bin/media/upload';
     const API_UPLOAD_IMG = '/cgi-bin/media/uploadimg';

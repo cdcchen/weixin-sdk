@@ -9,17 +9,12 @@
 namespace weixin\qy;
 
 
-use phpplus\net\CUrl;
-use weixin\qy\base\ApiException;
-use weixin\qy\base\RequestException;
-use weixin\qy\base\ResponseException;
-use weixin\qy\security\PrpCrypt;
+use weixin\base\Object;
+use weixin\security\PrpCrypt;
 
-class Connect
+class Connect extends Object
 {
     const ENCODING_AES_KEY_LENGTH = 43;
-
-    const API_ACCESS_TOKEN = '/cgi-bin/gettoken';
 
     private $_token;
     private $_encodingAesKey;
@@ -31,7 +26,7 @@ class Connect
      * @param string $token 公众平台上，开发者设置的token
      * @param string $encoding_aes_key 公众平台上，开发者设置的EncodingAESKey
      */
-    public function __construct($corp_id, $token = null, $encoding_aes_key = null)
+    public function __construct($corp_id, $token, $encoding_aes_key)
     {
         $this->_token = $token;
         $this->_encodingAesKey = $encoding_aes_key;
@@ -67,39 +62,8 @@ class Connect
         return $pc->decrypt($echo_str, $this->_corpId);
     }
 
-    public function getAccessToken($corp_secret, $only_token = true)
-    {
-        $params = [
-            'corpid' => $this->_corpId,
-            'corpsecret' => $corp_secret,
-        ];
-
-        $request = new CUrl();
-        $request->get(Base::getRequestUrl(self::API_ACCESS_TOKEN), $params);
-
-        if ($request->getErrno() === CURLE_OK) {
-            $data = $request->getJsonData();
-            static::checkAccessTokenResponse($data);
-
-            return $only_token ? $data['access_token'] : $data;
-        }
-        else
-            throw new RequestException($request->getError(), $request->getHttpCode());
-    }
-
     protected function getSignature($timestamp, $nonce, $echo_str)
     {
-        return Base::getSHA1($this->_token, $timestamp, $nonce, $echo_str);
-    }
-
-    protected static function checkAccessTokenResponse($data)
-    {
-        if (isset($data['access_token'])) {
-            return true;
-        }
-        elseif (isset($data['errcode']))
-            throw new ApiException($data['errmsg'], $data['errcode']);
-        else
-            throw new ResponseException('Get access token error.');
+        return Request::getSHA1($this->_token, $timestamp, $nonce, $echo_str);
     }
 }

@@ -9,8 +9,8 @@
 namespace weixin\qy\push;
 
 
-use weixin\qy\Base;
-use weixin\qy\security\PrpCrypt;
+use weixin\qy\Request;
+use weixin\security\PrpCrypt;
 
 class Response
 {
@@ -32,30 +32,70 @@ class Response
         $this->_corpID = $corp_id;
     }
 
-    public function text($text, $to_user = null, $from_user = null)
+    public function text($text)
     {
-        if ($to_user) $this->_toUser = $to_user;
-        if ($from_user) $this->_fromUser = $from_user;
-
         $this->_msgType = self::TYPE_TEXT;
 
-        $tpl = '<Content><![CDATA[%s]]></Content>';
-        $extraXml = sprintf($tpl, $text);
+        $format = '<Content><![CDATA[%s]]></Content>';
+        $extraXml = sprintf($format, $text);
 
-        return $this->buildXml($extraXml);
+        return $this->buildContentXml($extraXml);
     }
 
-    public function image($media_id, $to_user = null, $from_user = null)
+    public function image($media_id)
     {
-        if ($to_user) $this->_toUser = $to_user;
-        if ($from_user) $this->_fromUser = $from_user;
-
         $this->_msgType = self::TYPE_IMAGE;
 
-        $tpl = '<Image><MediaId><![CDATA[%s]]></MediaId></Image>';
-        $extraXml = sprintf($tpl, $media_id);
+        $format = '<Image><MediaId><![CDATA[%s]]></MediaId></Image>';
+        $extraXml = sprintf($format, $media_id);
 
-        return $this->buildXml($extraXml);
+        return $this->buildContentXml($extraXml);
+    }
+
+    public function voice($media_id)
+    {
+        $this->_msgType = self::TYPE_IMAGE;
+
+        $format = '<Voice><MediaId><![CDATA[%s]]></MediaId></Voice>';
+        $extraXml = sprintf($format, $media_id);
+
+        return $this->buildContentXml($extraXml);
+    }
+
+    public function video($media_id, $title = '', $desc = '')
+    {
+        $this->_msgType = self::TYPE_IMAGE;
+
+        $format = '<Video>
+            <MediaId><![CDATA[%s]]></MediaId>
+            <Title><![CDATA[%s]]></Title>
+            <Description><![CDATA[%s]]></Description>
+        </Video>';
+        $extraXml = sprintf($format, $media_id, $title, $desc);
+
+        return $this->buildContentXml($extraXml);
+    }
+
+    public function news(array $items)
+    {
+        $this->_msgType = self::TYPE_IMAGE;
+
+        $format = '<ArticleCount>%d</ArticleCount><Articles>%s</Articles>';
+        $extraXml = sprintf($format, count($items), join('', $items));
+
+        return $this->buildContentXml($extraXml);
+    }
+
+    public static function buildNewsItem($title, $url, $desc, $pic_url)
+    {
+        $format = '<Item>
+            <Title><![CDATA[%s]]></Title>
+            <Description><![CDATA[%s]]></Description>
+            <PicUrl><![CDATA[%s]]></PicUrl>
+            <Url><![CDATA[%s]]></Url>
+        </Item>';
+        
+        return sprintf($format, $title, $desc, $pic_url, $url);
     }
 
     public function setToUser($to_user)
@@ -70,9 +110,11 @@ class Response
         return $this;
     }
 
-    protected function buildXml($extra_xml)
+
+
+    protected function buildContentXml($extra_xml)
     {
-        $tpl = '<xml>
+        $format = '<xml>
            <Encrypt><![CDATA[%s]]></Encrypt>
            <MsgSignature><![CDATA[%s]]></MsgSignature>
            <TimeStamp>%s</TimeStamp>
@@ -83,9 +125,9 @@ class Response
         $nonce = uniqid();
         $plainXml = $this->buildPlainXml($extra_xml);
         $encryptXml = $this->buildEncryptedXml($plainXml);
-        $signature = Base::getSHA1($this->_token, $timestamp, $nonce, $encryptXml);
+        $signature = Request::getSHA1($this->_token, $timestamp, $nonce, $encryptXml);
 
-        return sprintf($tpl, $encryptXml, $signature, $timestamp, $nonce);
+        return sprintf($format, $encryptXml, $signature, $timestamp, $nonce);
     }
 
     protected function buildEncryptedXml($xml)
@@ -101,11 +143,14 @@ class Response
 
     protected function defaultPlainXml()
     {
-        $tpl = '<ToUserName><![CDATA[%s]]></ToUserName>
+        if (empty($this->_toUser) || empty($this->_fromUser) || empty($this->_msgType))
+            throw new \InvalidArgumentException('ToUserName|FromUserName|MsgType is required.');
+
+        $format = '<ToUserName><![CDATA[%s]]></ToUserName>
             <FromUserName><![CDATA[%s]]></FromUserName>
             <CreateTime>%d</CreateTime>
             <MsgType><![CDATA[%s]]></MsgType>';
 
-        return sprintf($tpl, $this->_toUser, $this->_fromUser, time(), $this->_msgType);
+        return sprintf($format, $this->_toUser, $this->_fromUser, time(), $this->_msgType);
     }
 }

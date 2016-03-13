@@ -11,7 +11,7 @@ namespace weixin\qy;
 
 use phpplus\net\CUrl;
 
-class Shake extends Base
+class Shake extends Request
 {
     const API_GET_SHAKE_INFO = '/cgi-bin/shakearound/getshakeinfo';
 

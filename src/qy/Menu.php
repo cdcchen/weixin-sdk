@@ -11,7 +11,7 @@ namespace weixin\qy;
 
 use phpplus\net\CUrl;
 
-class Menu extends Base
+class Menu extends Request
 {
     const API_CREATE = '/cgi-bin/menu/create';
     const API_DELETE = '/cgi-bin/menu/delete';

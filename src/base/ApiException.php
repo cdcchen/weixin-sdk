@@ -7,10 +7,10 @@
  * Time: 22:01
  */
 
-namespace weixin\qy\base;
+namespace weixin\base;
 
 
-class ResponseException extends \Exception
+class ApiException extends \Exception
 {
 
 }

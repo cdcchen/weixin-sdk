@@ -11,7 +11,7 @@ namespace weixin\qy;
 
 use phpplus\net\CUrl;
 
-class Server extends Base
+class Server extends Request
 {
     const API_IP_LIST = '/cgi-bin/getcallbackip';
 

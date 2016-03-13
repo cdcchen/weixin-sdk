@@ -6,7 +6,7 @@
  * Time: 15:18
  */
 
-namespace weixin\qy\base;
+namespace weixin\base;
 
 
 class Object

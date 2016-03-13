@@ -10,10 +10,10 @@ namespace weixin\qy\contact;
 
 
 use phpplus\net\CUrl;
-use weixin\qy\Base;
-use weixin\qy\base\ResponseException;
+use weixin\base\ResponseException;
+use weixin\qy\Request;
 
-class Tag extends Base
+class Tag extends Request
 {
     const API_CREATE = '/cgi-bin/tag/create';
     const API_UPDATE = '/cgi-bin/tag/update';

@@ -9,7 +9,7 @@
 namespace weixin\qy\base;
 
 
-class Response
+class Error
 {
     const E_SYSTEM_BUSY                                 = -1;
     const E_SUCCESS                                     = 0;

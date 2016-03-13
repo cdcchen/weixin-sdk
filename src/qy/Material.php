@@ -12,7 +12,7 @@ namespace weixin\qy;
 use phpplus\filesystem\FileHelper;
 use phpplus\net\CUrl;
 
-class Material extends Base
+class Material extends Request
 {
     const BATCH_GET_MAX_COUNT = 50;
 
