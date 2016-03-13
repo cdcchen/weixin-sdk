@@ -18,6 +18,7 @@ use weixin\qy\security\PrpCrypt;
 class Connect
 {
     const ENCODING_AES_KEY_LENGTH = 43;
+
     const API_ACCESS_TOKEN = '/cgi-bin/gettoken';
 
     private $_token;

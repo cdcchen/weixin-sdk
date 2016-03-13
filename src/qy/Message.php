@@ -15,6 +15,7 @@ use weixin\qy\base\ResponseException;
 class Message extends Base
 {
     const API_SEND = '/cgi-bin/message/send';
+
     const TYPE_TEXT = 'text';
     const TYPE_IMAGE = 'image';
     const TYPE_VOICE = 'voice';
@@ -88,9 +89,9 @@ class Message extends Base
     public function send($agentId, array $attributes)
     {
         $attributes['agentid'] = $agentId;
-        $url = $this->getUrl(self::API_SEND);
 
         $request = new CUrl();
+        $url = $this->getUrl(self::API_SEND);
         $request->post($url, json_encode($attributes, 320));
 
         return static::handleRequest($request, function(CUrl $request){

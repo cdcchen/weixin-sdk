@@ -24,10 +24,9 @@ class OAuth extends Base
 
     public function getUserInfo($code)
     {
-        $url = $this->getUrl(self::API_INFO, ['code' => $code]);
-
         $request = new CUrl();
-        $request->get($url);
+        $url = $this->getUrl(self::API_INFO);
+        $request->get($url, ['code' => $code]);
 
         return static::handleRequest($request, function(CUrl $request){
             $response = $request->getJsonData();

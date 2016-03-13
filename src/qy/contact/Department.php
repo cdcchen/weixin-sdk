@@ -14,17 +14,16 @@ use weixin\qy\Base;
 
 class Department extends Base
 {
-    const URL_CREATE = '/cgi-bin/department/create';
-    const URL_UPDATE = '/cgi-bin/department/update';
-    const URL_DELETE = '/cgi-bin/department/delete';
-    const URL_LIST = '/cgi-bin/department/list';
+    const API_CREATE = '/cgi-bin/department/create';
+    const API_UPDATE = '/cgi-bin/department/update';
+    const API_DELETE = '/cgi-bin/department/delete';
+    const API_LIST = '/cgi-bin/department/list';
 
 
     public function select($id = null)
     {
-        $url = $this->getUrl(self::URL_LIST);
-
         $request = new CUrl();
+        $url = $this->getUrl(self::API_LIST);
         $request->get($url, ['id' => $id]);
 
         return static::handleRequest($request, function(CUrl $request){
@@ -36,18 +35,17 @@ class Department extends Base
 
     public function create($name, $parent_id = 1, $order = 0, $id = 0)
     {
-        $params = [
+        $attributes = [
             'name' => $name,
             'parentid' => $parent_id,
         ];
 
-        if ($order > 0) $params['order'] = $order;
-        if ($id > 0) $params['id'] = $id;
-
-        $url = $this->getUrl(self::URL_CREATE);
+        if ($order > 0) $attributes['order'] = $order;
+        if ($id > 0) $attributes['id'] = $id;
 
         $request = new CUrl();
-        $request->post($url, json_encode($params, 320));
+        $url = $this->getUrl(self::API_CREATE);
+        $request->post($url, json_encode($attributes, 320));
 
         return static::handleRequest($request, function(CUrl $request){
             return static::handleResponse($request, function($response){
@@ -58,18 +56,17 @@ class Department extends Base
 
     public function update($id, $name, $parent_id = 1, $order = 0)
     {
-        $params = [
+        $attributes = [
             'id' => $id,
             'name' => $name,
             'parentid' => $parent_id,
         ];
 
-        if ($order > 0) $params['order'] = $order;
-
-        $url = $this->getUrl(self::URL_UPDATE);
+        if ($order > 0) $attributes['order'] = $order;
 
         $request = new CUrl();
-        $request->post($url, json_encode($params, 320));
+        $url = $this->getUrl(self::API_UPDATE);
+        $request->post($url, json_encode($attributes, 320));
 
         return static::handleRequest($request, function(CUrl $request){
             return static::handleResponse($request, function($response){
@@ -80,12 +77,11 @@ class Department extends Base
 
     public function delete($id)
     {
-        $params = ['id' => $id];
-
-        $url = $this->getUrl(self::URL_DELETE);
+        $attributes = ['id' => $id];
 
         $request = new CUrl();
-        $request->get($url, $params);
+        $url = $this->getUrl(self::API_DELETE);
+        $request->get($url, $attributes);
 
         return static::handleRequest($request, function(CUrl $request){
             return static::handleResponse($request, function($response){

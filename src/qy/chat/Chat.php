@@ -10,9 +10,12 @@ namespace weixin\qy\chat;
 
 use phpplus\net\CUrl;
 use weixin\qy\Base;
+use weixin\qy\base\UpdateTrait;
 
 class Chat extends Base
 {
+    use UpdateTrait;
+
     const CHAT_TYPE_SINGLE = 'single';
     const CHAT_TYPE_GROUP = 'group';
 
@@ -72,21 +75,21 @@ class Chat extends Base
     }
 
 
-    public function update($chat_id, $op_user, $name = null, $owner = null, $add_user_list = [], $del_user_list = [])
+
+
+    ######################### Update #################################
+
+    public function update($chat_id, $op_user, array $attributes = [])
     {
-        $extraAttributes = static::buildUpdateAttributes($name, $owner, $add_user_list, $del_user_list);
-        if (empty($extraAttributes))
-            throw new \InvalidArgumentException('Property is not set needs to be updated.');
+        $attributes = array_merge($this->_attributes, $attributes);
+        $attributes['chatid'] = $chat_id;
+        $attributes['op_user'] = $op_user;
 
-        $url = $this->getUrl(self::API_UPDATE);
+        if (count($attributes) <= 2)
+            throw new \InvalidArgumentException('There is no attributes need to be updated.');
+
         $request = new CUrl();
-
-        $attributes = [
-            'chatid' => $chat_id,
-            'op_user' => $op_user,
-        ];
-        $attributes = array_merge($attributes, $extraAttributes);
-
+        $url = $this->getUrl(self::API_UPDATE);
         $request->post($url, json_encode($attributes, 320));
 
         return static::handleRequest($request, function(CUrl $request){
@@ -96,12 +99,32 @@ class Chat extends Base
         });
     }
 
-    public function updateUsers($chat_id, $op_user, array $add_user_list, array $del_user_list)
+    public function setName($name)
     {
-        if (empty($add_user_list) && empty($del_user_list))
-            throw new \InvalidArgumentException('$add_user_list and $del_user_list can\'t at the same time is empty');
+        return $this->setUpdateAttribute('name', $name);
+    }
 
-        return $this->update($chat_id, $op_user, null, null, $add_user_list, $del_user_list);
+    public function setOwner($owner)
+    {
+        return $this->setUpdateAttribute('owner', $owner);
+    }
+
+    /**
+     * @param array $add_user_list
+     * @return $this
+     */
+    public function setAddUsers(array $add_user_list)
+    {
+        return $this->setUpdateAttribute('add_user_list', $add_user_list);
+    }
+
+    /**
+     * @param array $del_user_list
+     * @return $this
+     */
+    public function setDeleteUsers(array $del_user_list)
+    {
+        return $this->setUpdateAttribute('del_user_list', $del_user_list);
     }
 
     public function addUsers($chat_id, $op_user, array $add_user_list)
@@ -109,7 +132,7 @@ class Chat extends Base
         if (empty($add_user_list))
             throw new \InvalidArgumentException('$add_user_list can\'t be empty');
 
-        return $this->updateUsers($chat_id, $op_user, $add_user_list, []);
+        return $this->setAddUsers($add_user_list)->update($chat_id, $op_user);
     }
 
     public function removeUsers($chat_id, $op_user, array $del_user_list)
@@ -117,8 +140,10 @@ class Chat extends Base
         if (empty($del_user_list))
             throw new \InvalidArgumentException('$del_user_list can\'t be empty');
 
-        return $this->updateUsers($chat_id, $op_user, [], $del_user_list);
+        return $this->setDeleteUsers($del_user_list)->update($chat_id, $op_user);
     }
+
+
 
 
     public function quit($chat_id, $op_user)
@@ -229,29 +254,6 @@ class Chat extends Base
                 return true;
             });
         });
-    }
-
-
-    protected static function buildUpdateAttributes($name, $owner, array $add_user_list, array $del_user_list)
-    {
-        $addUserList = (array)$add_user_list;
-        $delUserList = (array)$del_user_list;
-
-        $attributes = [];
-        if ($name) $attributes['name'] = $name;
-
-        if ($owner) {
-            $attributes['owner'] = $owner;
-            $addUserList[] = $owner;
-        }
-
-        if ($add_user_list)
-            $attributes['add_user_list'] = $addUserList;
-
-        if ($del_user_list)
-            $attributes['del_user_list'] = $delUserList;
-
-        return $attributes;
     }
 
     protected static function checkCreateArguments($owner, $user_list)

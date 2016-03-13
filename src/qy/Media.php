@@ -32,7 +32,7 @@ class Media extends Base
     public function upload($filename, $type)
     {
         $url = $this->getUrl(self::API_UPLOAD, ['type' => $type]);
-        $media = $this->makeMediaParams($filename);
+        $media = static::makeMediaParams($filename);
 
         $request = new CUrl();
         $request->post($url, $media, true);
@@ -47,7 +47,7 @@ class Media extends Base
     public function uploadImage($filename)
     {
         $url = $this->getUrl(self::API_UPLOAD_IMG);
-        $media = $this->makeMediaParams($filename);
+        $media = static::makeMediaParams($filename);
 
         $request = new CUrl();
         $request->post($url, $media, true);
@@ -57,17 +57,6 @@ class Media extends Base
                 return $response['url'];
             });
         });
-    }
-
-    public function makeMediaParams($filename)
-    {
-        $file = new \CURLFile($filename);
-        return [
-            'upload_file' => $file,
-            'filename' => $filename,
-            'filelength' => filesize($filename),
-            'content-type' => 'image/jpeg',
-        ];
     }
 
     public function download($media_id)
@@ -87,5 +76,17 @@ class Media extends Base
                 throw new ResponseException($response['errmsg'], $response['errcode']);
             }
         });
+    }
+
+    protected static function makeMediaParams($filename)
+    {
+        $mimeType = FileHelper::getMimeType($filename, null, true);
+        $file = new \CURLFile($filename, $mimeType);
+        return [
+            'upload_file' => $file,
+            'filename' => $filename,
+            'filelength' => filesize($filename),
+            'content-type' => $mimeType,
+        ];
     }
 }

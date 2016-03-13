@@ -17,9 +17,8 @@ class Server extends Base
 
     public function getCallbackIP()
     {
-        $url = $this->getUrl(self::API_IP_LIST);
-
         $request = new CUrl();
+        $url = $this->getUrl(self::API_IP_LIST);
         $request->get($url);
 
         return static::handleRequest($request, function(CUrl $request){

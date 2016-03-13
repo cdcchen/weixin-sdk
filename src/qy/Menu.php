@@ -36,10 +36,10 @@ class Menu extends Base
 
     public function delete($agent_id)
     {
-        $url = $this->getUrl(self::API_DELETE, ['agentid' => $agent_id]);
+        $url = $this->getUrl(self::API_DELETE);
 
         $request = new CUrl();
-        $request->post($url);
+        $request->post($url, ['agentid' => $agent_id]);
 
         return static::handleRequest($request, function(CUrl $request){
             return static::handleResponse($request, function($response){
@@ -50,13 +50,13 @@ class Menu extends Base
 
     public function query($agent_id)
     {
-        $url = $this->getUrl(self::API_LIST, ['agentid' => $agent_id]);
-
         $request = new CUrl();
-        $request->get($url);
+        $url = $this->getUrl(self::API_LIST);
+        $request->get($url, ['agentid' => $agent_id]);
 
         return static::handleRequest($request, function(CUrl $request){
             return static::handleResponse($request, function($response){
+                unset($response['errcode'], $response['errmsg']);
                 return $response;
             });
         });

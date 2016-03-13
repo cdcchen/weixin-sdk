@@ -11,31 +11,39 @@ namespace weixin\qy\contact;
 
 use phpplus\net\CUrl;
 use weixin\qy\Base;
+use weixin\qy\base\UpdateTrait;
 
 class User extends Base
 {
+    use UpdateTrait;
+
     const STATUS_FOLLOWED = 1;
     const STATUS_FORBIDDEN = 2;
     const STATUS_NOT_FOLLOWED = 4;
 
-    const URL_CREATE = '/cgi-bin/user/create';
-    const URL_UPDATE = '/cgi-bin/user/update';
-    const URL_DELETE = '/cgi-bin/user/delete';
-    const URL_BATCH_DELETE = '/cgi-bin/user/batchdelete';
-    const URL_GET_INFO = '/cgi-bin/user/get';
-    const URL_SIMPLE_LIST = '/cgi-bin/user/simplelist';
-    const URL_DETAIL_LIST = '/cgi-bin/user/list';
-    const URL_CONVERT_TO_OPENID = '/cgi-bin/user/convert_to_openid';
-    const URL_CONVERT_TO_USERID = '/cgi-bin/user/convert_to_userid';
-    const URL_INVITE = '/cgi-bin/invite/send';
+    const INVITE_TYPE_WEIXIN = 1;
+    const INVITE_TYPE_EMAIL = 2;
+
+    const API_CREATE                = '/cgi-bin/user/create';
+    const API_UPDATE                = '/cgi-bin/user/update';
+    const API_DELETE                = '/cgi-bin/user/delete';
+    const API_GET_ITEM              = '/cgi-bin/user/get';
+    const API_SIMPLE_LIST           = '/cgi-bin/user/simplelist';
+    const API_DETAIL_LIST           = '/cgi-bin/user/list';
+    const API_BATCH_DELETE          = '/cgi-bin/user/batchdelete';
+    const API_CONVERT_TO_OPENID     = '/cgi-bin/user/convert_to_openid';
+    const API_CONVERT_TO_USERID     = '/cgi-bin/user/convert_to_userid';
+    const API_INVITE                = '/cgi-bin/invite/send';
+
+
 
     public function create(array $attributes, array $ext_attr = [])
     {
         if ($ext_attr)
             $attributes['extattr'] = $ext_attr;
 
-        $url = $this->getUrl(self::URL_CREATE);
         $request = new CUrl();
+        $url = $this->getUrl(self::API_CREATE);
         $request->post($url, json_encode($attributes, 320));
 
         return static::handleRequest($request, function(CUrl $request){
@@ -45,12 +53,15 @@ class User extends Base
         });
     }
 
-    public function update($user_id, $attributes)
+    public function update($user_id, $attributes = [])
     {
+        $attributes = array_merge($this->_updateAttributes, $attributes);
         $attributes['userid'] = $user_id;
+        if (count($attributes) <= 1)
+            throw new \InvalidArgumentException('There is no attributes need to be updated.');
 
-        $url = $this->getUrl(self::URL_UPDATE);
         $request = new CUrl();
+        $url = $this->getUrl(self::API_UPDATE);
         $request->post($url, json_encode($attributes, 320));
 
         return static::handleRequest($request, function(CUrl $request){
@@ -62,8 +73,8 @@ class User extends Base
 
     public function delete($user_id)
     {
-        $url = $this->getUrl(self::URL_DELETE);
         $request = new CUrl();
+        $url = $this->getUrl(self::API_DELETE);
         $request->get($url, ['userid' => $user_id]);
 
         return static::handleRequest($request, function(CUrl $request){
@@ -77,8 +88,8 @@ class User extends Base
     {
         $attributes = ['useridlist' => $users];
 
-        $url = $this->getUrl(self::URL_BATCH_DELETE);
         $request = new CUrl();
+        $url = $this->getUrl(self::API_BATCH_DELETE);
         $request->post($url, json_encode($attributes, 320));
 
         return static::handleRequest($request, function(CUrl $request){
@@ -90,8 +101,8 @@ class User extends Base
 
     public function fetch($user_id)
     {
-        $url = $this->getUrl(self::URL_GET_INFO);
         $request = new CUrl();
+        $url = $this->getUrl(self::API_GET_ITEM);
         $request->get($url, ['userid' => $user_id]);
 
         return static::handleRequest($request, function(CUrl $request){
@@ -110,8 +121,8 @@ class User extends Base
             'fetch_child' => $fetch_child ? 1 : 0,
         ];
 
-        $url = $this->getUrl(self::URL_SIMPLE_LIST);
         $request = new CUrl();
+        $url = $this->getUrl(self::API_SIMPLE_LIST);
         $request->get($url, $attributes);
 
         return static::handleRequest($request, function(CUrl $request){
@@ -129,8 +140,8 @@ class User extends Base
             'fetch_child' => $fetch_child ? 1 : 0,
         ];
 
-        $url = $this->getUrl(self::URL_DETAIL_LIST);
         $request = new CUrl();
+        $url = $this->getUrl(self::API_DETAIL_LIST);
         $request->get($url, $attributes);
 
         return static::handleRequest($request, function(CUrl $request){
@@ -144,8 +155,8 @@ class User extends Base
     {
         $attributes = ['userid' => $user_id];
 
-        $url = $this->getUrl(self::URL_INVITE);
         $request = new CUrl();
+        $url = $this->getUrl(self::API_INVITE);
         $request->post($url, json_encode($attributes, 320));
 
         return static::handleRequest($request, function(CUrl $request){
@@ -161,8 +172,8 @@ class User extends Base
         if ($agent_id)
             $attributes['agent_id'] = $agent_id;
 
-        $url = $this->getUrl(self::URL_CONVERT_TO_OPENID);
         $request = new CUrl();
+        $url = $this->getUrl(self::API_CONVERT_TO_OPENID);
         $request->post($url, json_encode($attributes, 320));
 
         return static::handleRequest($request, function(CUrl $request){
@@ -179,8 +190,8 @@ class User extends Base
     {
         $attributes = ['openid' => $open_id];
 
-        $url = $this->getUrl(self::URL_CONVERT_TO_USERID);
         $request = new CUrl();
+        $url = $this->getUrl(self::API_CONVERT_TO_USERID);
         $request->post($url, json_encode($attributes, 320));
 
         return static::handleRequest($request, function(CUrl $request){
@@ -188,5 +199,54 @@ class User extends Base
                 return $response['userid'];
             });
         });
+    }
+
+
+
+    ################################## Update ####################################
+
+    public function setName($value)
+    {
+        return $this->setUpdateAttribute('name', $value);
+    }
+
+    public function setDepartment($value)
+    {
+        return $this->setUpdateAttribute('department', $value);
+    }
+
+    public function setPosition($value)
+    {
+        return $this->setUpdateAttribute('position', $value);
+    }
+
+    public function setGender($value)
+    {
+        return $this->setUpdateAttribute('gender', $value);
+    }
+
+    public function setEmail($value)
+    {
+        return $this->setUpdateAttribute('email', $value);
+    }
+
+    public function setWeixinId($value)
+    {
+        return $this->setUpdateAttribute('weixinid', $value);
+    }
+
+    public function setStatus($value)
+    {
+        return $this->setUpdateAttribute('enable', $value);
+    }
+
+    public function setAvatarMediaId($value)
+    {
+        return $this->setUpdateAttribute('avatar_mediaid', $value);
+    }
+
+    public function setExtAttr($value)
+    {
+        return $this->setUpdateAttribute('extattr', $value);
     }
 }

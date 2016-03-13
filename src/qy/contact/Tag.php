@@ -15,21 +15,35 @@ use weixin\qy\base\ResponseException;
 
 class Tag extends Base
 {
-    const URL_CREATE = '/cgi-bin/tag/create';
-    const URL_UPDATE = '/cgi-bin/tag/update';
-    const URL_DELETE = '/cgi-bin/tag/delete';
-    const URL_LIST = '/cgi-bin/tag/list';
-    const URL_GET_USERS = '/cgi-bin/tag/get';
-    const URL_ADD_USERS = '/cgi-bin/tag/addtagusers';
-    const URL_DELETE_USERS = '/cgi-bin/tag/deltagusers';
+    const API_CREATE = '/cgi-bin/tag/create';
+    const API_UPDATE = '/cgi-bin/tag/update';
+    const API_DELETE = '/cgi-bin/tag/delete';
+    const API_LIST = '/cgi-bin/tag/list';
+    const API_GET_USERS = '/cgi-bin/tag/get';
+    const API_ADD_USERS = '/cgi-bin/tag/addtagusers';
+    const API_DELETE_USERS = '/cgi-bin/tag/deltagusers';
+
+    
+    public function getAll()
+    {
+        $request = new CUrl();
+        $url = $this->getUrl(self::API_LIST);
+        $request->get($url);
+
+        return static::handleRequest($request, function(CUrl $request){
+            return static::handleResponse($request, function($response){
+                return $response['taglist'];
+            });
+        });
+    }
 
     public function create($name, $id = 0)
     {
         $attributes = ['tagname' => $name];
         if ($id > 0) $attributes['tagid'] = $id;
 
-        $url = $this->getUrl(self::URL_CREATE);
         $request = new CUrl();
+        $url = $this->getUrl(self::API_CREATE);
         $request->post($url, json_encode($attributes, 320));
 
         return static::handleRequest($request, function(CUrl $request){
@@ -46,8 +60,8 @@ class Tag extends Base
             'tagname' => $name,
         ];
 
-        $url = $this->getUrl(self::URL_UPDATE);
         $request = new CUrl();
+        $url = $this->getUrl(self::API_UPDATE);
         $request->post($url, json_encode($attributes, 320));
 
         return static::handleRequest($request, function(CUrl $request){
@@ -59,8 +73,8 @@ class Tag extends Base
 
     public function delete($id)
     {
-        $url = $this->getUrl(self::URL_DELETE);
         $request = new CUrl();
+        $url = $this->getUrl(self::API_DELETE);
         $request->get($url, ['tagid' => $id]);
 
         return static::handleRequest($request, function(CUrl $request){
@@ -72,8 +86,8 @@ class Tag extends Base
 
     public function getUsers($id)
     {
-        $url = $this->getUrl(self::URL_GET_USERS);
         $request = new CUrl();
+        $url = $this->getUrl(self::API_GET_USERS);
         $request->get($url, ['tagid' => $id]);
 
         return static::handleRequest($request, function(CUrl $request){
@@ -86,7 +100,7 @@ class Tag extends Base
     public function addUsers($id, array $user_list = [], array $party_list = [])
     {
         if (empty($user_list) && empty($party_list))
-            throw new \ErrorException('userlist and partylist can\'t at the same time is empty.');
+            throw new \InvalidArgumentException('$user_list and $party_list can\'t at the same time is empty.');
 
         $attributes = [
             'tagid' => $id,
@@ -94,8 +108,8 @@ class Tag extends Base
             'partylist' => $party_list,
         ];
 
-        $url = $this->getUrl(self::URL_ADD_USERS);
         $request = new CUrl();
+        $url = $this->getUrl(self::API_ADD_USERS);
         $request->post($url, json_encode($attributes, 320));
 
         return static::handleRequest($request, function(CUrl $request){
@@ -111,7 +125,7 @@ class Tag extends Base
     public function deleteUsers($id, array $user_list = [], array $party_list = [])
     {
         if (empty($user_list) && empty($party_list))
-            throw new \ErrorException('userlist and partylist can\'t at the same time is empty.');
+            throw new \InvalidArgumentException('$user_list and $party_list can\'t at the same time is empty.');
 
         $attributes = [
             'tagid' => $id,
@@ -119,8 +133,8 @@ class Tag extends Base
             'partylist' => $party_list,
         ];
 
-        $url = $this->getUrl(self::URL_DELETE_USERS);
         $request = new CUrl();
+        $url = $this->getUrl(self::API_DELETE_USERS);
         $request->post($url, json_encode($attributes, 320));
 
         return static::handleRequest($request, function(CUrl $request){
@@ -137,19 +151,6 @@ class Tag extends Base
                 }
                 else
                     return true;
-            });
-        });
-    }
-
-    public function all()
-    {
-        $url = $this->getUrl(self::URL_LIST);
-        $request = new CUrl();
-        $request->get($url);
-
-        return static::handleRequest($request, function(CUrl $request){
-            return static::handleResponse($request, function($response){
-                return $response['taglist'];
             });
         });
     }

@@ -37,10 +37,9 @@ class Material extends Base
 
     public function uploadFile($filename, $type)
     {
+        $request = new CUrl();
         $url = $this->getUrl(self::API_UPLOAD, ['type' => $type]);
         $media = static::makeMediaParams($filename);
-
-        $request = new CUrl();
         $request->post($url, $media, true);
 
         return static::handleRequest($request, function(CUrl $request){
@@ -50,22 +49,10 @@ class Material extends Base
         });
     }
 
-    protected static function makeMediaParams($filename)
-    {
-        $file = new \CURLFile($filename);
-        return [
-            'upload_file' => $file,
-            'filename' => $filename,
-            'filelength' => filesize($filename),
-            'content-type' => 'image/jpeg',
-        ];
-    }
-
     public function fetch($media_id, $agent_id)
     {
-        $url = $this->getUrl(self::API_GET_ITEM);
-
         $request = new CUrl();
+        $url = $this->getUrl(self::API_GET_ITEM);
         $request->returnHeaders(true)
             ->get($url, ['media_id' => $media_id, 'agentid' => $agent_id]);
 
@@ -83,71 +70,53 @@ class Material extends Base
 
     public function createNews($agent_id, $news)
     {
-        $url = $this->getUrl(self::API_ADD_NEWS, $this->getAccessToken());
-
         $attributes = [
             'agentid' => $agent_id,
             'mpnews' => $news,
         ];
 
         $request = new CUrl();
+        $url = $this->getUrl(self::API_ADD_NEWS, $this->getAccessToken());
         $request->post($url, json_encode($attributes, 320));
 
-        if ($request->getErrno() === CURLE_OK) {
-            $response = $request->getJsonData();
-            if ($response['errcode'] == 0) {
+        return static::handleRequest($request, function(CUrl $request){
+            return static::handleResponse($request, function($response){
                 return $response['media_id'];
-            }
-            else
-                throw new \ErrorException($response['errmsg'], $response['errcode']);
-        }
-        else
-            throw new \ErrorException($request->getError(), $request->getHttpCode());
+            });
+        });
     }
 
-    public function updateNews($agent_id, $news, $media_id)
+    public function updateNews($agent_id, $media_id, $articles)
     {
-        $url = $this->getUrl(self::API_UPDATE_NEWS, $this->getAccessToken());
-
         $attributes = [
             'agentid' => $agent_id,
             'media_id' => $media_id,
-            'mpnews' => $news,
+            'mpnews' => ['articles' => $articles],
         ];
 
         $request = new CUrl();
+        $url = $this->getUrl(self::API_UPDATE_NEWS, $this->getAccessToken());
         $request->post($url, json_encode($attributes, 320));
 
-        if ($request->getErrno() === CURLE_OK) {
-            $response = $request->getJsonData();
-            if ($response['errcode'] == 0) {
+        return static::handleRequest($request, function(CUrl $request){
+            return static::handleResponse($request, function($response){
                 return true;
-            }
-            else
-                throw new \ErrorException($response['errmsg'], $response['errcode']);
-        }
-        else
-            throw new \ErrorException($request->getError(), $request->getHttpCode());
+            });
+        });
     }
 
-    public function count($agent_id)
+    public function getCount($agent_id)
     {
-        $url = $this->getUrl(self::API_GET_COUNT);
-
         $request = new CUrl();
+        $url = $this->getUrl(self::API_GET_COUNT);
         $request->get($url, ['agentid' => $agent_id]);
 
-        if ($request->getErrno() === CURLE_OK) {
-            $response = $request->getJsonData();
-            if ($response['errcode'] == 0) {
+        return static::handleRequest($request, function(CUrl $request){
+            return static::handleResponse($request, function($response){
                 unset($response['errcode'], $response['errmsg']);
                 return $response;
-            }
-            else
-                throw new \ErrorException($response['errmsg'], $response['errcode']);
-        }
-        else
-            throw new \ErrorException($request->getError(), $request->getHttpCode());
+            });
+        });
     }
 
     /**
@@ -172,17 +141,12 @@ class Material extends Base
         $request = new CUrl();
         $request->post($url, json_encode($attributes, 320));
 
-        if ($request->getErrno() === CURLE_OK) {
-            $response = $request->getJsonData();
-            if ($response['errcode'] == 0) {
+        return static::handleRequest($request, function(CUrl $request){
+            return static::handleResponse($request, function($response){
                 unset($response['errcode'], $response['errmsg']);
                 return $response;
-            }
-            else
-                throw new \ErrorException($response['errmsg'], $response['errcode']);
-        }
-        else
-            throw new \ErrorException($request->getError(), $request->getHttpCode());
+            });
+        });
     }
 
 
@@ -198,15 +162,23 @@ class Material extends Base
         $request = new CUrl();
         $request->get($url, $attributes);
 
-        if ($request->getErrno() === CURLE_OK) {
-            $response = $request->getJsonData();
-            if ($response['errcode'] == 0) {
+        return static::handleRequest($request, function(CUrl $request){
+            return static::handleResponse($request, function($response){
+                unset($response['errcode'], $response['errmsg']);
                 return true;
-            }
-            else
-                throw new \ErrorException($response['errmsg'], $response['errcode']);
-        }
-        else
-            throw new \ErrorException($request->getError(), $request->getHttpCode());
+            });
+        });
+    }
+
+    protected static function makeMediaParams($filename)
+    {
+        $mimeType = FileHelper::getMimeType($filename, null, true);
+        $file = new \CURLFile($filename, $mimeType);
+        return [
+            'upload_file' => $file,
+            'filename' => $filename,
+            'filelength' => filesize($filename),
+            'content-type' => $mimeType,
+        ];
     }
 }
