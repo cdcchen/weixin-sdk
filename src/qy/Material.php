@@ -9,6 +9,7 @@
 namespace weixin\qy;
 
 
+use phpplus\filesystem\FileHelper;
 use phpplus\net\CUrl;
 
 class Material extends Base
