@@ -16,6 +16,9 @@ class Message extends Base
 {
     const API_SEND = '/cgi-bin/message/send';
 
+    const MAX_USER_COUNT = 1000;
+    const MAX_PARTY_COUNT = 100;
+
     const TYPE_TEXT = 'text';
     const TYPE_IMAGE = 'image';
     const TYPE_VOICE = 'voice';
@@ -120,13 +123,21 @@ class Message extends Base
 
     public function sendToUser($agent_id, $to_user, array $attributes)
     {
-        $attributes['touser'] = join('|', (array)$to_user);
+        $to_user = (array)$to_user;
+        if (count($to_user) > self::MAX_USER_COUNT)
+            throw new \InvalidArgumentException('The number of $to_user should not exceed ' . self::MAX_USER_COUNT);
+
+        $attributes['touser'] = join('|', $to_user);
         return $this->send($agent_id, $attributes);
     }
 
     public function sendToParty($agent_id, $to_party, array $attributes)
     {
-        $attributes['toparty'] = join('|', (array)$to_party);
+        $to_party = (array)$to_party;
+        if (count($to_party) > self::MAX_USER_COUNT)
+            throw new \InvalidArgumentException('The number of $to_user should not exceed ' . self::MAX_PARTY_COUNT);
+
+        $attributes['toparty'] = join('|', $to_party);
         return $this->send($agent_id, $attributes);
     }
 
