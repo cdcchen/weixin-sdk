@@ -11,14 +11,20 @@ namespace weixin\qy\models;
 
 abstract class Base
 {
-    abstract public function attributes();
+    abstract public function attributesMap();
 
-    public function getAttributes()
+    public function buildAttributes()
     {
-        $data = [];
-        foreach ($this->attributes() as $attr)
-            $data[$attr] = $this->$attr;
+        $attributes = [];
+        foreach ($this->attributesMap() as $key => $attr) {
+            if (is_int($key))
+                $attributes[$attr] = $this->$attr;
+            elseif (is_string($key))
+                $attributes[$attr] = $this->$key;
+            else
+                throw new \Exception('Key is not valid in attributes map.');
+        }
 
-        return $data;
+        return $attributes;
     }
 }

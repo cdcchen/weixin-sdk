@@ -48,7 +48,7 @@ class Menu extends Base
         });
     }
 
-    public function query($agent_id)
+    public function select($agent_id)
     {
         $request = new CUrl();
         $url = $this->getUrl(self::API_LIST);
