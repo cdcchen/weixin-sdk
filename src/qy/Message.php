@@ -49,7 +49,7 @@ class Message extends Request
 
     ############## send *(text|image|voice|video|file|news|mpnews) shortcut methods ############
 
-    public function sendText($agent_id, $content, array $attributes)
+    public function sendText($agent_id, $content, array $attributes = [])
     {
         $attributes['msgtype'] = self::TYPE_TEXT;
         $attributes['text']['content'] = $content;
@@ -57,7 +57,7 @@ class Message extends Request
         return $this->send($agent_id, $attributes);
     }
 
-    public function sendImage($agent_id, $media_id, array $attributes)
+    public function sendImage($agent_id, $media_id, array $attributes = [])
     {
         $attributes['msgtype'] = self::TYPE_IMAGE;
         $attributes['image']['media_id'] = $media_id;
@@ -65,7 +65,7 @@ class Message extends Request
         return $this->send($agent_id, $attributes);
     }
 
-    public function sendVoice($agent_id, $media_id, array $attributes)
+    public function sendVoice($agent_id, $media_id, array $attributes = [])
     {
         $attributes['msgtype'] = self::TYPE_VOICE;
         $attributes['voice']['media_id'] = $media_id;
@@ -73,7 +73,7 @@ class Message extends Request
         return $this->send($agent_id, $attributes);
     }
 
-    public function sendVideo($agent_id, $video, array $attributes)
+    public function sendVideo($agent_id, $video, array $attributes = [])
     {
         $attributes['msgtype'] = self::TYPE_VIDEO;
         if (is_array($video))
@@ -84,7 +84,7 @@ class Message extends Request
         return $this->send($agent_id, $attributes);
     }
 
-    public function sendFile($agent_id, $media_id, array $attributes)
+    public function sendFile($agent_id, $media_id, array $attributes = [])
     {
         $attributes['msgtype'] = self::TYPE_FILE;
         $attributes['file']['media_id'] = $media_id;
@@ -92,7 +92,7 @@ class Message extends Request
         return $this->send($agent_id, $attributes);
     }
 
-    public function sendNews($agent_id, $articles, array $attributes)
+    public function sendNews($agent_id, $articles, array $attributes = [])
     {
         $attributes['msgtype'] = self::TYPE_NEWS;
         $attributes['news']['articles'] = $articles;
@@ -100,7 +100,7 @@ class Message extends Request
         return $this->send($agent_id, $attributes);
     }
 
-    public function sendMPNews($agent_id, $articles, array $attributes)
+    public function sendMPNews($agent_id, $articles, array $attributes = [])
     {
         $attributes['msgtype'] = self::TYPE_MPNEWS;
         if (is_array($articles))
@@ -153,6 +153,11 @@ class Message extends Request
     public function setToUser($value)
     {
         return $this->setAttribute('touser', $value);
+    }
+
+    public function setToAllUser()
+    {
+        return $this->setAttribute('touser', '@all');
     }
 
     public function setToParty($value)
